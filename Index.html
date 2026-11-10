@@ -1,0 +1,645 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Operação Final Sula</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: app de celular — barra escura fixa (dias + abas), conteúdo em listas e cards; checklist com marcação compartilhada */
+:root{
+  --bg:#F3F2EE; --surface:#FFFFFF; --sunk:#ECEBE5; --fg:#16150F; --muted:#6B6858; --line:#E2E0D6;
+  --head:#111110; --head-fg:#F5F3EA; --head-mut:#ADA996; --gold:#C9A227; --gold-ink:#7A5F0A; --gold-soft:#F6EDCC;
+  --ok:#1F7A4D; --ok-soft:#DDF1E5; --warn:#A55A00; --warn-soft:#FBE8CF; --info:#2F5D8A; --info-soft:#E1EAF4;
+  --wa:#1E8E4E; --wa-bg:#E7F3EC;
+  --f-disp:"Barlow Condensed","Arial Narrow",sans-serif; --f-body:"Barlow",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121210; --surface:#1C1B18; --sunk:#171714; --fg:#EEECE3; --muted:#A39F8C; --line:#2E2D28;
+  --head:#000000; --head-fg:#F5F3EA; --head-mut:#A8A493; --gold:#D9B23A; --gold-ink:#E6C766; --gold-soft:#3A3218;
+  --ok:#6FCF97; --ok-soft:#1C3328; --warn:#F2B25C; --warn-soft:#3B2B14; --info:#8AB4E0; --info-soft:#1B2836;
+  --wa:#2FA864; --wa-bg:#16261D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121210; --surface:#1C1B18; --sunk:#171714; --fg:#EEECE3; --muted:#A39F8C; --line:#2E2D28;
+  --head:#000000; --head-fg:#F5F3EA; --head-mut:#A8A493; --gold:#D9B23A; --gold-ink:#E6C766; --gold-soft:#3A3218;
+  --ok:#6FCF97; --ok-soft:#1C3328; --warn:#F2B25C; --warn-soft:#3B2B14; --info:#8AB4E0; --info-soft:#1B2836;
+  --wa:#2FA864; --wa-bg:#16261D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.4}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--head);color:var(--head-fg)}
+header .wrap{padding-block:12px 0;display:flex;flex-direction:column;gap:10px}
+.trip{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.trip h1{font-family:var(--f-disp);font-size:23px;letter-spacing:.03em;margin:0;line-height:1}
+.trip small{display:block;color:var(--head-mut);font-size:12.5px;margin-top:4px}
+.sync{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:4px;font-weight:600;white-space:nowrap;background:#2a2a26;color:#cfcab6}
+.sync.on{background:var(--gold);color:#111}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.day{font:600 12.5px var(--f-body);border:1px solid #34332e;background:#1d1d1b;color:#D8D4C4;border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.day small{font-size:10.5px;color:#8f8b7c;font-weight:500;letter-spacing:.04em}
+.day[aria-pressed="true"]{background:var(--gold);color:#111;border-color:var(--gold)}
+.day[aria-pressed="true"] small{color:#3b300a}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav button{flex:1 0 auto;font-family:var(--f-disp);font-size:15.5px;letter-spacing:.04em;text-transform:uppercase;background:none;border:0;color:#9C998A;padding:9px 4px 8px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--head-fg);border-bottom-color:var(--gold)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+main .wrap{padding-block:14px 56px;display:flex;flex-direction:column;gap:12px}
+.dayhead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.dayhead h2{font-family:var(--f-disp);font-size:22px;letter-spacing:.03em;text-transform:uppercase;margin:0;line-height:1.05}
+.dayhead p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.md{font-family:var(--f-mono);font-size:11.5px;color:var(--gold-ink);background:var(--gold-soft);padding:2px 6px;border-radius:4px}
+.bar-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;background:var(--sunk);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{font:600 13.5px var(--f-body);border:0;background:none;color:var(--muted);padding:6px 12px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:600 13px var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn{font:600 14px var(--f-body);background:var(--fg);color:var(--bg);border:0;border-radius:8px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.o{background:none;color:var(--fg);border:1px solid var(--line)}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.sm{padding:6px 10px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.stat b{font-family:var(--f-disp);font-size:24px;line-height:1.05;display:block;font-variant-numeric:tabular-nums}
+.lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.group{font-family:var(--f-disp);font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 -4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.time{font-family:var(--f-mono);font-size:14.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.time.na{color:var(--muted)}
+.sub{color:var(--muted);font-size:13px}
+.pill{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-gold{background:var(--gold-soft);color:var(--gold-ink)} .p-info{background:var(--info-soft);color:var(--info)}
+/* timeline */
+.tl{display:flex;flex-direction:column}
+.tl-i{display:grid;grid-template-columns:50px 24px 1fr;gap:0 6px;padding:9px 14px;border-top:1px solid var(--line);align-items:start;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;font:inherit;color:inherit}
+.tl-i:first-child{border-top:0}
+.tl-i .ic{font-size:15px;text-align:center;line-height:1.35}
+.tl-i .t{min-width:0}
+.tl-i.prog{background:var(--sunk)}
+.tl-i.prog b{font-weight:600}
+.tl-i.key b{color:var(--gold-ink)}
+.tl-i.veh{cursor:pointer}
+.tl-i.veh:hover{background:var(--sunk)}
+.route{font-size:14px}
+/* vehicle card */
+.vh{display:flex;gap:12px;align-items:flex-start;padding:12px 14px}
+.vh .t{flex:1;min-width:0}
+.vh b{font-weight:600}
+.vh .pills{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.legs{border-top:1px solid var(--line);padding:8px 14px 10px;display:flex;flex-direction:column}
+.leg{display:grid;grid-template-columns:48px 14px 1fr;gap:0 8px;align-items:start;padding:4px 0}
+.leg .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--gold);margin-top:5px;justify-self:center}
+.leg .t{min-width:0}
+.kv{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);padding:0 14px 12px}
+.kv span b{color:var(--fg);font-weight:600}
+/* tasks */
+.task{display:flex;flex-direction:column;gap:8px;padding:11px 14px;border-top:1px solid var(--line)}
+.task:first-child{border-top:0}
+.task .top{display:flex;gap:10px;align-items:flex-start}
+.task .t{flex:1;min-width:0}
+.task .t b{font-weight:600;display:block}
+.who{display:flex;gap:6px;flex-wrap:wrap;padding-left:58px}
+.pck{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-body);border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 10px 4px 5px;cursor:pointer}
+.pck .bx{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:#fff}
+.pck.on{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.pck.on .bx{background:var(--ok);border-color:var(--ok)}
+.chk{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;color:inherit;font:inherit;text-align:left}
+.chk:first-child{border-top:0}
+.chk .box{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;flex:none;color:#fff;font-size:15px}
+.chk.on .box{background:var(--ok);border-color:var(--ok)}
+.chk.on .t b{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.chk .t{flex:1;min-width:0}
+.chk .t b{font-weight:600;display:block}
+.done-by{font-size:12px;color:var(--ok)}
+.prog-bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.prog-bar>div{height:100%;background:var(--ok);transition:width .2s}
+.people{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.person{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;font:inherit;color:inherit;min-width:0}
+.person[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.person b{font-weight:600;font-size:14px}
+.person .count{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.macro{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.macro ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px}
+.note{font-size:12.5px;color:var(--muted);border-left:3px solid var(--gold);padding:2px 0 2px 10px;margin:0}
+.banner{font-size:13px;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:8px 10px}
+.empty{padding:16px 14px;color:var(--muted);font-size:14px}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{background:var(--surface);width:100%;max-width:640px;max-height:92%;overflow:auto;border-radius:14px 14px 0 0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px}
+.sheet h3{font-family:var(--f-disp);font-size:21px;letter-spacing:.03em;text-transform:uppercase;margin:0}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.wa-prev{background:var(--wa-bg);border-radius:10px;padding:12px;font-family:var(--f-body);font-size:14px;line-height:1.45;border:1px solid var(--line);width:100%;min-height:300px;color:var(--fg);resize:vertical}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:14px;z-index:30}
+.prg{display:grid;grid-template-columns:52px 1fr;gap:0 10px;padding:10px 14px;border-top:1px solid var(--line);align-items:start}
+.prg:first-child{border-top:0}
+.prg b{font-weight:600}
+.prg.key{background:var(--gold-soft)}
+.prg.key b{color:var(--gold-ink)}
+.prg .veh{font-size:13px;color:var(--muted);margin-top:3px}
+.mx-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.mx{border-collapse:separate;border-spacing:0;font-size:13px;min-width:860px;width:100%}
+.mx th,.mx td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.mx thead th{font-family:var(--f-disp);font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+.mx thead th.sel{color:var(--gold-ink);background:var(--gold-soft)}
+.mx td.sel{background:color-mix(in srgb,var(--gold-soft) 45%,var(--surface))}
+.mx th.p{position:sticky;left:0;background:var(--surface);z-index:1;min-width:92px}
+.mx thead th.p{background:var(--sunk)}
+.mx ul{margin:0;padding-left:15px;display:flex;flex-direction:column;gap:2px}
+.mx .pbtn{font:600 14px var(--f-body);background:none;border:0;color:var(--fg);padding:0;cursor:pointer;text-align:left}
+.mx .pbtn:hover{color:var(--gold-ink)}
+.mcards{display:flex;flex-direction:column;gap:8px}
+.fr-h{display:flex;justify-content:space-between;align-items:baseline;padding:11px 14px;background:var(--head);color:var(--head-fg)}
+.fr-h b{font-family:var(--f-disp);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+.fr-h .sub{color:var(--head-mut)}
+.fr-set{display:flex;flex-direction:column;border-top:1px solid var(--line);padding:8px 0 4px}
+.fr-set:first-of-type{border-top:0}
+.fr-set .lbl{padding:0 14px 4px;color:var(--gold-ink)}
+.fr-row{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:7px 14px;background:none;border:0;border-top:1px solid var(--line);width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.fr-row:hover{background:var(--sunk)}
+.fr-row .t{min-width:0}
+.fr-row b{font-weight:600}
+.fr-r{font-weight:600;font-size:13.5px;text-align:right}
+.ebtn{font:600 12.5px var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 9px;cursor:pointer;white-space:nowrap}
+.ebtn:hover{color:var(--fg);border-color:var(--muted)}
+.vfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 14px 12px;flex-wrap:wrap}
+.edby{font-size:12px;color:var(--info)}
+.addrow{display:flex;justify-content:flex-end}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.fgrid .full{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.fld input,.fld select,.fld textarea{font:400 15px var(--f-body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+.fld textarea{min-height:64px;resize:vertical}
+.legrow{display:grid;grid-template-columns:96px 1fr 1fr 34px;gap:6px;align-items:center}
+.legrow input{font:400 14px var(--f-body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 8px;width:100%;min-width:0}
+.legrow button{font:600 16px var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;height:34px;cursor:pointer}
+.pchecks{display:flex;gap:8px 14px;flex-wrap:wrap;font-size:14.5px;color:var(--fg);font-weight:400}
+.pchecks label{display:flex;gap:6px;align-items:center}
+.factions{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.factions .l{display:flex;gap:8px;flex-wrap:wrap}
+.btn.danger{background:none;color:#B3261E;border:1px solid #B3261E}
+@media (max-width:480px){.fgrid{grid-template-columns:1fr}.legrow{grid-template-columns:80px 1fr 1fr 32px}}
+@media (max-width:480px){.people{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.who{padding-left:0}}
+@media (prefers-reduced-motion:reduce){.prog-bar>div{transition:none}}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="trip">
+      <div>
+        <h1>OPERAÇÃO FINAL SULA · BAQ</h1>
+        <small>CAM x Boca Juniors · 21/11 17h30 (COL) · Hilton Garden Inn</small>
+      </div>
+      <span class="sync" id="sync">Conectando…</span>
+    </div>
+    <div class="days" id="days"></div>
+    <nav role="tablist" id="tabs"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<div id="sheet" class="sheet" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+const DATA={"svc": [{"id": "v2", "d": "14", "n": "1", "v": "VAN", "u": "D", "cap": "13 PAX", "pax": "13", "ini": "23:37", "fim": "23:37", "act": "VAN 1 | CHEGADA MARKETING | PTY/BAQ | 22:20/23:37", "g": "AVANÇADA", "ped": "23135809", "conf": "", "r": "JOÃO PAULO", "obs": "", "legs": [{"h": "23:37", "o": "AEROPORTO BARRANQUILLA", "de": "SKY COLLECTION"}, {"h": "", "o": "SKY COLLECTION", "de": "HILTON GARDEN INN"}]}, {"id": "v5", "d": "15", "n": "2", "v": "MINIVAN 1", "u": "D", "cap": "13 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v8", "d": "16", "n": "3", "v": "MINIVAN 1", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 1 | MASCOTE", "g": "AVANÇADA", "ped": "", "conf": "", "r": "JOÃO PAULO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v10", "d": "16", "n": "4", "v": "MINIVAN 2", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 2 | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v13", "d": "17", "n": "5", "v": "MINIVAN 1", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 1 | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v15", "d": "17", "n": "6", "v": "MINIVAN 2", "u": "D", "cap": "13 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 2 | MASCOTE", "g": "AVANÇADA", "ped": "", "conf": "", "r": "JOÃO PAULO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "SKY COLLECTION"}, {"h": "21:00", "o": "SKY COLLECTION", "de": "TBA"}]}, {"id": "v18", "d": "18", "n": "7", "v": "MINIVAN 1", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 1 | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v20", "d": "18", "n": "8", "v": "MINIVAN 2", "u": "D", "cap": "13 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 2 | MASCOTE", "g": "AVANÇADA", "ped": "", "conf": "", "r": "JOÃO PAULO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "SKY COLLECTION"}, {"h": "21:00", "o": "SKY COLLECTION", "de": "TBA"}]}, {"id": "v22", "d": "18", "n": "9", "v": "SEDAN / (CHEGADA LASMAR E FIALHO)", "u": "D", "cap": "4 PAX", "pax": "2", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "AVANÇADA", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}, {"h": "21:30", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v24", "d": "18", "n": "10", "v": "CAMINHÃO DE CARGA 4TON", "u": "D", "cap": "-", "pax": "-", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "GUSTAVO", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v25", "d": "18", "n": "11", "v": "VAN DE CARGA", "u": "D", "cap": "-", "pax": "-", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "GUSTAVO", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v26", "d": "18", "n": "12", "v": "VAN / (CHEGADA MINDA, PRECIADO E FRANCO) / ROUPARIA", "u": "D", "cap": "15 PAX", "pax": "4", "ini": "15:00", "fim": "03:00", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "CONVOCADOS", "ped": "CONMEBOL", "conf": "", "r": "DUARTE", "obs": "", "legs": [{"h": "15:00", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}, {"h": "16:30", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA", "g": "ROUPARIA", "r": "GUSTAVO"}, {"h": "18:00", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v29", "d": "18", "n": "13", "v": "BUS 1", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "DUARTE", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v30", "d": "18", "n": "14", "v": "BUS 2", "u": "D", "cap": "60 PAX", "pax": "BACKUP", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "TLO", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v31", "d": "18", "n": "15", "v": "BUS 3", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "17:35", "fim": "05:35", "act": "CHEGADA PLANTEL | LA 9515 | CNF/BAQ | 14:00/17:35 | + | CHEGADA CONVOCADOS (MINDA, PRECIADO E FRANCO) | AV 9524 | 14:05/15:45 | + | CHEGADA CONVOCADOS (LASMAR E FIALHO) | LA 4146 | 18:25/20:05", "g": "PLANTEL", "ped": "", "conf": "", "r": "OLIMPIO", "obs": "", "legs": [{"h": "17:35", "o": "AEROPORTO BARRANQUILLA", "de": "HILTON GARDEN INN"}]}, {"id": "v33", "d": "19", "n": "16", "v": "MINIVAN 1", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 1 | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v35", "d": "19", "n": "17", "v": "VAN 1", "u": "D", "cap": "15 PAX", "pax": "15", "ini": "09:00", "fim": "21:00", "act": "VAN 1 | REUNIÃO SEGURANÇA | CONMEBOL - 10H | REUNIÃO COORDENAÇÃO | CONMEBOL - 11H | TREINO | FCF COLOMBIA", "g": "SEGURANÇA", "ped": "", "conf": "", "r": "DUARTE", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "DANN CARLTON"}, {"h": "10:00", "o": "DANN CARLTON", "de": "HILTON GARDEN INN"}, {"h": "10:30", "o": "HILTON GARDEN INN", "de": "DANN CARLTON", "g": "LOGÍSTICA", "r": "DOURADO"}, {"h": "12:00", "o": "DANN CARLTON", "de": "HILTON GARDEN INN"}, {"h": "15:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA", "g": "COMISSÃO TÉCNICA / + / ROUPARIA", "r": "LUCIANO"}, {"h": "15:30", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}, {"h": "16:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "20:00", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v43", "d": "19", "n": "18", "v": "SEDAN 1", "u": "D", "cap": "3 PAX", "pax": "4", "ini": "09:00", "fim": "21:00", "act": "SEDAN | BACKUP", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "21:00", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v45", "d": "19", "n": "19", "v": "MINIVAN 2", "u": "F", "cap": "8 PAX", "pax": "8", "ini": "", "fim": "12:00", "act": "MINIVAN 2 | CHEGADA FAMÍLIA GUIMARÃES | Disponibilidade total", "g": "FAMÍLIA / GUIMARÃES", "ped": "", "conf": "", "r": "WAGNER", "obs": "", "legs": [{"h": "", "o": "HILTON GARDEN INN", "de": ""}, {"h": "", "o": "", "de": "CROWNE PLAZA"}, {"h": "", "o": "CROWNE PLAZA", "de": "DISPOSIÇÃO TOTAL"}]}, {"id": "v48", "d": "19", "n": "20", "v": "VAN 2", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "11:00", "fim": "23:00", "act": "VAN 2 | OPERAÇÃO DIRETORIA | Disponibilidade total", "g": "DIRETORIA CAM", "ped": "", "conf": "", "r": "GUSTAVO", "obs": "", "legs": [{"h": "11:00", "o": "HILTON GARDEN INN", "de": "DISPOSIÇÃO TOTAL"}, {"h": "23:00", "o": "DISPOSIÇÃO TOTAL", "de": "HILTON GARDEN INN"}]}, {"id": "v50", "d": "19", "n": "21", "v": "VAN DE CARGA", "u": "D", "cap": "-", "pax": "-", "ini": "15:00", "fim": "03:00", "act": "VAN CARGA | ROUPARIA - TREINO | FCF COLOMBIA", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "LUCIANO", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v52", "d": "19", "n": "22", "v": "MINIVAN 3", "u": "F", "cap": "8 PAX", "pax": "8", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 3 | OPERAÇÃO MASCOTE | Disponibilidade total", "g": "MKT", "ped": "", "conf": "", "r": "JOÃO PAULO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "DISPOSIÇÃO TOTAL"}, {"h": "", "o": "DISPOSIÇÃO TOTAL", "de": "HILTON GARDEN INN"}]}, {"id": "v54", "d": "19", "n": "23", "v": "BUS 1", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "16:00", "fim": "04:00", "act": "BUS 1 | TREINO | FCF COLOMBIA", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "16:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v56", "d": "19", "n": "24", "v": "BUS 2", "u": "D", "cap": "60 PAX", "pax": "BACKUP", "ini": "16:00", "fim": "04:00", "act": "BUS 2 | TREINO | FCF COLOMBIA", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "TLO", "obs": "", "legs": [{"h": "16:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v58", "d": "19", "n": "25", "v": "BUS 3", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "16:00", "fim": "04:00", "act": "BUS 3 | TREINO | FCF COLOMBIA", "g": "PLANTEL", "ped": "", "conf": "", "r": "DUARTE", "obs": "", "legs": [{"h": "16:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v61", "d": "20", "n": "26", "v": "MINIVAN 1", "u": "D", "cap": "7 PAX", "pax": "13", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 1 | INSTITUTO GALO", "g": "AVANÇADA", "ped": "", "conf": "", "r": "AMANDA LOPES", "obs": "", "legs": [{"h": "09:00", "o": "SKY COLLECTION", "de": "TBA"}, {"h": "", "o": "TBA", "de": "SKY COLLECTION"}]}, {"id": "v63", "d": "20", "n": "27", "v": "SEDAN 1", "u": "D", "cap": "3 PAX", "pax": "4", "ini": "09:00", "fim": "21:00", "act": "SEDAN | BACKUP", "g": "", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v65", "d": "20", "n": "28", "v": "VAN DE CARGA", "u": "D", "cap": "-", "pax": "-", "ini": "15:00", "fim": "03:00", "act": "VAN CARGA | ROUPARIA - TREINO | FCF COLOMBIA - 17H30", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "LUCIANO", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v67", "d": "20", "n": "29", "v": "VAN 3", "u": "D", "cap": "-", "pax": "-", "ini": "15:00", "fim": "03:00", "act": "VAN 2 | ROUPARIA - TREINO | FCF COLOMBIA - 17H30 | + | JANTAR DIRETORIA", "g": "ROUPARIA", "ped": "", "conf": "", "r": "LUCIANO", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "18:00", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}, {"h": "19:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v71", "d": "20", "n": "30", "v": "VAN 1", "u": "D", "cap": "15 PAX", "pax": "15", "ini": "10:00", "fim": "22:00", "act": "VAN 1 | RECONHECIMENTO ESTÁDIO | + | COLETIVA DE IMPRENSA | ESTÁDIO METROPOLITANO - 16H00 | + | TREINO | + | ROUPARIA", "g": "SEGURANÇA", "ped": "CONMEBOL", "conf": "-", "r": "DUARTE", "obs": "", "legs": [{"h": "10:00", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "12:00", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}, {"h": "15:20", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "FCF COLOMBIA"}, {"h": "20:00", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v76", "d": "20", "n": "31", "v": "BUS 1", "u": "D", "cap": "60 PAX", "pax": "50", "ini": "17:00", "fim": "05:00", "act": "BUS 1 | TREINO | FCF COLOMBIA - 17H30", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "17:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v78", "d": "20", "n": "32", "v": "BUS 2", "u": "D", "cap": "60 PAX", "pax": "BACKUP", "ini": "17:00", "fim": "05:00", "act": "BUS 2 | TREINO | FCF COLOMBIA - 17H30", "g": "PLANTEL", "ped": "CONMEBOL", "conf": "-", "r": "TLO", "obs": "", "legs": [{"h": "17:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v80", "d": "20", "n": "33", "v": "BUS 3", "u": "D", "cap": "60 PAX", "pax": "45", "ini": "17:00", "fim": "05:00", "act": "BUS 3 | TREINO | FCF COLOMBIA - 17H30", "g": "PLANTEL", "ped": "", "conf": "", "r": "OLIMPIO", "obs": "", "legs": [{"h": "17:00", "o": "HILTON GARDEN INN", "de": "FCF COLOMBIA"}, {"h": "", "o": "FCF COLOMBIA", "de": "HILTON GARDEN INN"}]}, {"id": "v82", "d": "20", "n": "34", "v": "MINIVAN 2", "u": "F", "cap": "8 PAX", "pax": "8", "ini": "09:00", "fim": "21:00", "act": "MINIVAN 2 | FAMÍLIA GUIMARÃES | Disponibilidade total", "g": "FAMÍLIA / GUIMARÃES", "ped": "", "conf": "", "r": "WAGNER", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "", "o": "TBA", "de": "TBA"}]}, {"id": "v84", "d": "20", "n": "35", "v": "VAN 2", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "12:00", "fim": "00:00", "act": "VAN 3 | OPERAÇÃO DIRETORIA | Disponibilidade total", "g": "DIRETORIA", "ped": "", "conf": "", "r": "PEDRO TAVARES", "obs": "", "legs": [{"h": "12:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v86", "d": "20", "n": "36", "v": "MINIVAN 3", "u": "F", "cap": "4 PAX", "pax": "4", "ini": "", "fim": "12:00", "act": "MINIVAN 3 | CHEGADA FAMÍLIA SALVADOR | Disponibilidade total", "g": "FAMÍLIA / SALVADOR", "ped": "", "conf": "", "r": "FIGUEIREDO", "obs": "", "legs": [{"h": "", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "", "o": "AEROPORTO BARRANQUILLA", "de": "GHL COLLECTION"}, {"h": "", "o": "GHL COLLECTION", "de": "TBA"}]}, {"id": "v89", "d": "20", "n": "38", "v": "MINIVAN 2", "u": "D", "cap": "8 PAX", "pax": "8", "ini": "10:00", "fim": "22:00", "act": "MINIVAN 4 | OPERAÇÃO MASCOTE | Disponibilidade total", "g": "MKT", "ped": "", "conf": "", "r": "DANIEL CINTRA", "obs": "", "legs": [{"h": "10:00", "o": "HILTON GARDEN INN", "de": "TBA"}, {"h": "", "o": "TBA", "de": "HILTON GARDEN INN"}]}, {"id": "v91", "d": "20", "n": "39", "v": "VAN 3 / Antivandálico", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "15:00", "fim": "03:00", "act": "VAN  6 | (ANTIVANDÁLICO) | CHEGADA FAMÍLIA MENIN | Disponibilidade total", "g": "FAMÍLIA / MENIN", "ped": "", "conf": "", "r": "FIGUEIREDO", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "16:00", "o": "AEROPORTO BARRANQUILLA", "de": "GHL COLLECTION"}, {"h": "", "o": "GHL COLLECTION", "de": "TBA"}]}, {"id": "v94", "d": "20", "n": "40", "v": "BUS 4", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "15:00", "fim": "03:00", "act": "BUS 4 | CHEGADA FAMILIARES | AEROPORTO BARRANQUILLA - 16H35", "g": "FAMILIARES", "ped": "", "conf": "", "r": "MATEUS", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "18:00", "o": "AEROPORTO BARRANQUILLA", "de": "PONTO DE ENCONTRO"}]}, {"id": "v96", "d": "20", "n": "41", "v": "BUS 5", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "15:00", "fim": "03:00", "act": "BUS 5 | CHEGADA FAMILIARES | AEROPORTO BARRANQUILLA - 16h35", "g": "FAMILIARES", "ped": "", "conf": "", "r": "NEILA", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "18:00", "o": "AEROPORTO BARRANQUILLA", "de": "PONTO DE ENCONTRO"}]}, {"id": "v98", "d": "20", "n": "42", "v": "BUS 6", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "15:00", "fim": "03:00", "act": "BUS 6 | CHEGADA FAMILIARES | AEROPORTO BARRANQUILLA- 16h35", "g": "FAMILIARES", "ped": "", "conf": "", "r": "FONSECA", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "18:00", "o": "AEROPORTO BARRANQUILLA", "de": "PONTO DE ENCONTRO"}]}, {"id": "v100", "d": "20", "n": "43", "v": "BUS 7", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "15:00", "fim": "03:00", "act": "BUS 7 | CHEGADA FAMILIARES | AEROPORTO BARRANQUILLA- 16h35 | LEVAR FUNCIONÁRIOS CAM - HOTEL HILTON GARDEN INN", "g": "FAMILIARES", "ped": "", "conf": "", "r": "GUSTAVO", "obs": "", "legs": [{"h": "15:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}, {"h": "18:00", "o": "AEROPORTO BARRANQUILLA", "de": "PONTO DE ENCONTRO"}, {"h": "19:00", "o": "PONTO DE ENCONTRO", "de": "HILTON GARDEN INN"}]}, {"id": "v104", "d": "21", "n": "45", "v": "VAN 1", "u": "D", "cap": "15 PAX", "pax": "15", "ini": "10:30", "fim": "22:30", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "LUCIANO", "obs": "", "legs": [{"h": "10:30", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v106", "d": "21", "n": "46", "v": "VAN DE CARGA", "u": "D", "cap": "-", "pax": "-", "ini": "10:30", "fim": "22:30", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "LUCIANO", "obs": "", "legs": [{"h": "10:30", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v108", "d": "21", "n": "47", "v": "SEDAN 1", "u": "D", "cap": "3 PAX", "pax": "3", "ini": "14:00", "fim": "02:00", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "ANTIDOPING", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "14:00", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v110", "d": "21", "n": "48", "v": "BUS 1", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "14:00", "fim": "02:00", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "DELEGAÇÃO", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "14:00", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v112", "d": "21", "n": "49", "v": "BUS 2", "u": "D", "cap": "60 PAX", "pax": "BACKUP", "ini": "14:00", "fim": "02:00", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "DELEGAÇÃO", "ped": "CONMEBOL", "conf": "-", "r": "TLO", "obs": "", "legs": [{"h": "14:00", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v114", "d": "21", "n": "50", "v": "BUS 3", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "14:00", "fim": "02:00", "act": "JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "DELEGAÇÃO", "ped": "", "conf": "", "r": "OLIMPIO", "obs": "", "legs": [{"h": "14:00", "o": "HILTON GARDEN INN", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "HILTON GARDEN INN"}]}, {"id": "v117", "d": "21", "n": "51", "v": "MINIVAN 1", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "12:00", "fim": "00:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO JOGO", "g": "FAMÍLIA / GUIMARÃES", "ped": "", "conf": "", "r": "WAGNER", "obs": "", "legs": [{"h": "12:00", "o": "CROWNE PLAZA", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "CROWNE PLAZA"}]}, {"id": "v119", "d": "21", "n": "52", "v": "MINIVAN 2", "u": "F", "cap": "4 PAX", "pax": "3", "ini": "12:00", "fim": "00:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO JOGO", "g": "FAMÍLIA / SALVADOR", "ped": "", "conf": "", "r": "FIGUEIREDO", "obs": "", "legs": [{"h": "12:00", "o": "GHL COLLECTION", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "GHL COLLECTION"}]}, {"id": "v121", "d": "21", "n": "53", "v": "VAN 3 / Antivandálico", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "12:00", "fim": "00:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO JOGO", "g": "FAMÍLIA / MENIN", "ped": "", "conf": "", "r": "FIGUEIREDO", "obs": "", "legs": [{"h": "12:00", "o": "GHL COLLECTION", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "GHL COLLECTION"}]}, {"id": "v124", "d": "21", "n": "54", "v": "BUS 4", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "12:00", "fim": "00:00", "act": "OPERAÇÃO FAMILIARES | JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "FAMILIARES", "ped": "", "conf": "", "r": "FONSECA", "obs": "", "legs": [{"h": "12:00", "o": "HILTON GARDEN INN", "de": "PONTO DE ENCONTRO"}, {"h": "", "o": "PONTO DE ENCONTRO", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "PONTO DE ENCONTRO"}]}, {"id": "v127", "d": "21", "n": "55", "v": "BUS 5", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "13:00", "fim": "01:00", "act": "OPERAÇÃO FAMILIARES | JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "FAMILIARES", "ped": "", "conf": "", "r": "MATEUS", "obs": "", "legs": [{"h": "13:00", "o": "PONTO DE ENCONTRO", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "PONTO DE ENCONTRO"}]}, {"id": "v129", "d": "21", "n": "56", "v": "BUS 6", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "13:00", "fim": "01:00", "act": "OPERAÇÃO FAMILIARES | JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "FAMILIARES", "ped": "", "conf": "", "r": "HUGO", "obs": "", "legs": [{"h": "13:00", "o": "PONTO DE ENCONTRO", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "PONTO DE ENCONTRO"}]}, {"id": "v131", "d": "21", "n": "57", "v": "BUS 7", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "13:00", "fim": "01:00", "act": "OPERAÇÃO FAMILIARES | JOGO | ESTÁDIO METROPOLITANO | 17H30", "g": "FAMILIARES", "ped": "", "conf": "", "r": "NEILA", "obs": "", "legs": [{"h": "13:00", "o": "PONTO DE ENCONTRO", "de": "ESTÁDIO METROPOLITANO"}, {"h": "", "o": "ESTÁDIO METROPOLITANO", "de": "PONTO DE ENCONTRO"}]}, {"id": "v134", "d": "22", "n": "58", "v": "VAN 1", "u": "D", "cap": "15 PAX", "pax": "15", "ini": "09:00", "fim": "21:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "GUSTAVO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v135", "d": "22", "n": "59", "v": "CAMINHÃO DE CARGA 4TON", "u": "D", "cap": "-", "pax": "-", "ini": "09:00", "fim": "21:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "GUSTAVO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v136", "d": "22", "n": "60", "v": "VAN DE CARGA", "u": "D", "cap": "15 PAX", "pax": "15", "ini": "09:00", "fim": "21:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "ROUPARIA", "ped": "CONMEBOL", "conf": "-", "r": "GUSTAVO", "obs": "", "legs": [{"h": "09:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v137", "d": "22", "n": "61", "v": "BUS 1", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "11:00", "fim": "23:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "DELEGAÇÃO", "ped": "CONMEBOL", "conf": "-", "r": "DOURADO", "obs": "", "legs": [{"h": "11:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v138", "d": "22", "n": "62", "v": "BUS 2", "u": "D", "cap": "60 PAX", "pax": "BACKUP", "ini": "11:00", "fim": "23:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "DELEGAÇÃO", "ped": "CONMEBOL", "conf": "-", "r": "TLO", "obs": "", "legs": [{"h": "11:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v139", "d": "22", "n": "63", "v": "BUS 3", "u": "D", "cap": "60 PAX", "pax": "60", "ini": "11:00", "fim": "23:00", "act": "SAÍDA DELEGAÇÃO | LA 9517 | 13H00", "g": "DELEGAÇÃO", "ped": "", "conf": "", "r": "OLIMPIO", "obs": "", "legs": [{"h": "11:00", "o": "HILTON GARDEN INN", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v141", "d": "22", "n": "64", "v": "MINIVAN 1", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "07:00", "fim": "19:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO SAÍDA", "g": "FAMÍLIA / GUIMARÃES", "ped": "", "conf": "", "r": "WAGNER", "obs": "", "legs": [{"h": "07:00", "o": "HILTON GARDEN INN", "de": "CROWNE PLAZA"}, {"h": "", "o": "CROWNE PLAZA", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v143", "d": "22", "n": "65", "v": "MINIVAN 2", "u": "F", "cap": "4 PAX", "pax": "3", "ini": "07:00", "fim": "19:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO SAÍDA", "g": "FAMÍLIA / SALVADOR", "ped": "", "conf": "", "r": "FIGUEIREDO", "obs": "", "legs": [{"h": "07:00", "o": "HILTON GARDEN INN", "de": "GHL COLLECTION"}, {"h": "", "o": "GHL COLLECTION", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v145", "d": "22", "n": "66", "v": "VAN 4 / Antivandálico", "u": "F", "cap": "15 PAX", "pax": "15", "ini": "07:00", "fim": "19:00", "act": "DISPOSIÇÃO CONVIDADOS | OPERAÇÃO SAÍDA", "g": "FAMÍLIA / MENIN", "ped": "", "conf": "", "r": "OLIMPIO", "obs": "", "legs": [{"h": "07:00", "o": "HILTON GARDEN INN", "de": "GHL COLLECTION"}, {"h": "", "o": "GHL COLLECTION", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v148", "d": "22", "n": "67", "v": "BUS 4", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "06:00", "fim": "18:00", "act": "OPERAÇÃO FAMILIARES | SAÍDA | GOL | 10H00", "g": "FAMILIARES", "ped": "", "conf": "", "r": "FONSECA", "obs": "", "legs": [{"h": "06:00", "o": "HILTON GARDEN INN", "de": "PONTO DE ENCONTRO"}, {"h": "", "o": "PONTO DE ENCONTRO", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v150", "d": "22", "n": "68", "v": "BUS 5", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "07:00", "fim": "19:00", "act": "OPERAÇÃO FAMILIARES | SAÍDA | GOL | 10H00", "g": "FAMILIARES", "ped": "", "conf": "", "r": "MATEUS", "obs": "", "legs": [{"h": "07:00", "o": "PONTO DE ENCONTRO", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v151", "d": "22", "n": "69", "v": "BUS 6", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "07:00", "fim": "19:00", "act": "OPERAÇÃO FAMILIARES | SAÍDA | GOL | 10H00", "g": "FAMILIARES", "ped": "", "conf": "", "r": "HUGO", "obs": "", "legs": [{"h": "07:00", "o": "PONTO DE ENCONTRO", "de": "AEROPORTO BARRANQUILLA"}]}, {"id": "v152", "d": "22", "n": "70", "v": "BUS 7", "u": "F", "cap": "60 PAX", "pax": "60", "ini": "07:00", "fim": "19:00", "act": "OPERAÇÃO FAMILIARES | SAÍDA | GOL | 10H00", "g": "FAMILIARES", "ped": "", "conf": "", "r": "NEILA", "obs": "", "legs": [{"h": "07:00", "o": "PONTO DE ENCONTRO", "de": "AEROPORTO BARRANQUILLA"}]}], "tasks": [{"id": "te09c6d969d", "d": "17", "h": "16:00", "op": "PRÉ-EMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - RETIRADA / CONFERÊNCIA CARTÃO DE EMBARQUE IDA", "p": ["Rodrigo"]}, {"id": "te7e8c8b54f", "d": "18", "h": "10:00", "op": "EMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - DESPACHO DE BAGAGENS", "p": ["Fonseca", "Rodrigo"]}, {"id": "t5bf51ae666", "d": "18", "h": "12:00", "op": "EMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - MENSAGENS GRUPO OPERAÇÃO", "p": ["Gustavo"]}, {"id": "tfd27539762", "d": "18", "h": "13:30", "op": "EMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - EMBARQUE (T3)", "p": ["Gustavo", "Rodrigo"]}, {"id": "t86668e950a", "d": "18", "h": "14:00", "op": "EMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - EMBARQUE (SEGREGADO)", "p": ["Fonseca", "Ana"]}, {"id": "t729d9931da", "d": "18", "h": "17:35", "op": "DESEMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "VOO DELEGAÇÃO - RETIRADA DE BAGAGENS", "p": ["Gustavo"]}, {"id": "t70196c0a11", "d": "18", "h": "18:15", "op": "DESEMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "VAN CARGO (Rouparia) - CHEGADA DELEGAÇÃO", "p": ["Gustavo"]}, {"id": "t4a548f95b0", "d": "18", "h": "18:15", "op": "DESEMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "CAMINHÃO CARGO (Rouparia) - CHEGADA DELEGAÇÃO", "p": ["Gustavo"]}, {"id": "t101409ef30", "d": "18", "h": "18:15", "op": "DESEMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "VAN PAX (Rouparia) - CHEGADA DELEGAÇÃO - IN LOCO", "p": ["Gustavo"]}, {"id": "t14271af77b", "d": "18", "h": "18:15", "op": "DESEMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "CARRO (Backup) - CHEGADA DELEGAÇÃO", "p": ["Gustavo"]}, {"id": "t637caf94dc", "d": "18", "h": "18:30", "op": "CHECK IN", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "CHECK IN - DELEGAÇÃO", "p": ["Dourado"]}, {"id": "teed94c2331", "d": "18", "h": "19:30", "op": "CHECK IN", "loc": "HILTON", "g": "STAFF", "a": "CHECK IN - ROUPARIA", "p": ["Dourado"]}, {"id": "t0fc80c5e1c", "d": "18", "h": "20:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "RETIRADA LAVANDERIA 1", "p": ["Dourado"]}, {"id": "tf1ee492707", "d": "19", "h": "09:00", "op": "DIA", "loc": "HILTON", "g": "STAFF", "a": "CARRO - VEÍCULO CORINGA", "p": ["Dourado"]}, {"id": "te52d874a65", "d": "19", "h": "15:00", "op": "TREINO", "loc": "HILTON", "g": "STAFF", "a": "VAN PAX 1 (Rouparia) TREINO HOTEL - IN LOCO", "p": ["Gustavo"]}, {"id": "ta1894e5054", "d": "19", "h": "15:00", "op": "TREINO", "loc": "HILTON", "g": "STAFF", "a": "VAN CARGO (Rouparia) - TREINO HOTEL", "p": ["Gustavo"]}, {"id": "t2fc56c3e79", "d": "19", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 1 (Atletas + CT) - TREINO HOTEL - IN LOCO", "p": ["Dourado"]}, {"id": "t1c7ef899c3", "d": "19", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 2 (Backup) - TREINO HOTEL", "p": ["Dourado"]}, {"id": "t908a5a30fc", "d": "19", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 3 (Diretoria + Staff) - TREINO HOTEL", "p": ["Dourado"]}, {"id": "t08517c914a", "d": "19", "h": "09:00", "op": "PRÉ-JOGO", "loc": "HILTON", "g": "STAFF", "a": "VAN PAX - REUNIÃO SEGURANÇA", "p": ["Dourado"]}, {"id": "t38fd99a325", "d": "19", "h": "10:00", "op": "PRÉ-JOGO", "loc": "CONMEBOL", "g": "STAFF", "a": "ACOMPANHAMENTO - REUNIÃO SEGURANÇA", "p": ["Dourado"]}, {"id": "td214066350", "d": "19", "h": "10:00", "op": "MARKETING", "loc": "HILTON", "g": "GALO DOIDO", "a": "MINIVAN - ACOMPANHAMENTO OPERAÇÃO MKT", "p": ["Gustavo"]}, {"id": "t9f37cb7801", "d": "19", "h": "09:30", "op": "PRÉ-JOGO", "loc": "HILTON", "g": "STAFF", "a": "VAN PAX - REUNIÃO COORDENAÇÃO - IN LOCO", "p": ["Dourado"]}, {"id": "tdb4e96defb", "d": "19", "h": "11:00", "op": "PRÉ-JOGO", "loc": "CONMEBOL", "g": "STAFF", "a": "REUNIÃO COORDENAÇÃO JOGO", "p": ["Dourado"]}, {"id": "te8863ea170", "d": "19", "h": "12:00", "op": "DESEMBARQUE", "loc": "BAQ", "g": "VIPS", "a": "MINIVAN - CHEGADA FAMÍLIA GUIMARÃES", "p": ["Gustavo"]}, {"id": "t37a9a89598", "d": "19", "h": "11:00", "op": "DIRETORIA", "loc": "HILTON", "g": "DIRETORIA", "a": "VAN - ACOMPANHAMENTO OPERAÇÃO DIRETORIA", "p": ["Gustavo"]}, {"id": "t14b085bb07", "d": "19", "h": "12:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "ENTREGA LAVANDERIA 1", "p": ["Dourado"]}, {"id": "t7a7c9ce0bf", "d": "19", "h": "20:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "RETIRADA LAVANDERIA 2", "p": ["Dourado"]}, {"id": "td82f1954f5", "d": "19", "h": "14:00", "op": "VIPS", "loc": "CROWNE PLAZA", "g": "VIPS", "a": "MINIVAN - ACOMPANHAMENTO OPERAÇÃO (Família Guimarães)", "p": ["Gustavo"]}, {"id": "tf6a8a70ea8", "d": "20", "h": "08:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "ENTREGA LAVANDERIA 2", "p": ["Dourado"]}, {"id": "tce46e22034", "d": "20", "h": "09:00", "op": "DIA", "loc": "HILTON", "g": "STAFF", "a": "CARRO - VEÍCULO CORINGA", "p": ["Dourado"]}, {"id": "td996cd5af4", "d": "20", "h": "15:00", "op": "TREINO", "loc": "HILTON", "g": "STAFF", "a": "VAN PAX 1 (Rouparia) - TREINO FCF COLOMBIA - IN LOCO", "p": ["Gustavo"]}, {"id": "t94bf937fa2", "d": "20", "h": "15:00", "op": "TREINO", "loc": "HILTON", "g": "STAFF", "a": "VAN CARGO (Rouparia) - TREINO FCF COLOMBIA", "p": ["Gustavo"]}, {"id": "tcb489de73e", "d": "20", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 1 (Atletas + CT) - FCF COLOMBIA - IN LOCO", "p": ["Dourado"]}, {"id": "tc4ace8abde", "d": "20", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 2 (Backup) - TREINO FCF COLOMBIA", "p": ["Dourado"]}, {"id": "t5da5454b2a", "d": "20", "h": "17:00", "op": "TREINO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "BUS 3 (Diretoria + Staff) - TREINO FCF COLOMBIA - IN LOCO", "p": ["Dourado"]}, {"id": "tac0cf38419", "d": "20", "h": "10:00", "op": "TREINO", "loc": "HILTON", "g": "GALO DOIDO", "a": "MINIVAN - ACOMPANHAMENTO OPERAÇÃO MKT", "p": ["Gustavo"]}, {"id": "t2810bc28d4", "d": "20", "h": "12:00", "op": "DIRETORIA", "loc": "HILTON", "g": "DIRETORIA", "a": "VAN - ACOMPANHAMENTO OPERAÇÃO DIRETORIA", "p": ["Gustavo"]}, {"id": "t2b2243d897", "d": "20", "h": "12:00", "op": "VIPS", "loc": "HILTON", "g": "VIPS", "a": "MINIVAN - ACOMPANHAMENTO OPERAÇÃO (Família Guimarães + Família Menin + Família Salvador)", "p": ["Gustavo"]}, {"id": "te4a4f0f970", "d": "20", "h": "20:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "RETIRADA LAVANDERIA 3", "p": ["Dourado"]}, {"id": "t01fac44887", "d": "20", "h": "10:00", "op": "PRÉ-JOGO", "loc": "HILTON", "g": "STAFF", "a": "VAN PAX - INSPEÇÃO ESTÁDIO - IN LOCO", "p": ["Dourado"]}, {"id": "te3053e0974", "d": "20", "h": "12:00", "op": "DESEMBARQUE", "loc": "BAQ", "g": "VIPS", "a": "ACOMPANHAMENTO VOO PRIVADO - FAMÍLIA SALVADOR", "p": ["Gustavo"]}, {"id": "tf6770975b1", "d": "20", "h": "15:00", "op": "COLETIVA", "loc": "BAQ", "g": "STAFF", "a": "VAN - COLETIVA DE IMPRENSA - IN LOCO", "p": ["Dourado"]}, {"id": "t4dfb924e41", "d": "20", "h": "09:00", "op": "EMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "DESPACHO DE BAGAGENS - VOO FAMÍLIA", "p": ["Rodrigo", "Ana"]}, {"id": "t077572bf5d", "d": "20", "h": "11:00", "op": "EMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "MENSAGENS GRUPO OPERAÇÃO - PRÉ VOO FAMÍLIA", "p": ["Fonseca"]}, {"id": "t0c59e1bff2", "d": "20", "h": "10:30", "op": "EMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "EMBARQUE - VOO FAMÍLIA (T3)", "p": ["Fonseca"]}, {"id": "te470cda7ba", "d": "20", "h": "16:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "CARTÕES DE EMBARQUE (FAMÍLIA E DELEGAÇÃO)", "p": ["Gustavo"]}, {"id": "t9afd401b82", "d": "20", "h": "16:00", "op": "DESEMBARQUE", "loc": "BAQ", "g": "VIPS", "a": "ACOMPANHAMENTO VOO PRIVADO - FAMÍLIA MENIN", "p": ["Gustavo"]}, {"id": "tc5ea80fe25", "d": "20", "h": "16:35", "op": "DESEMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "ÔNIBUS 4 - CHEGADA FAMILIARES - IN LOCO", "p": ["Gustavo"]}, {"id": "t8a4e672bd5", "d": "20", "h": "16:35", "op": "DESEMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "ÔNIBUS 5 - CHEGADA FAMILIARES - IN LOCO", "p": ["Gustavo"]}, {"id": "t71da6421ff", "d": "20", "h": "16:35", "op": "DESEMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "ÔNIBUS 6 - CHEGADA FAMILIARES - IN LOCO", "p": ["Gustavo"]}, {"id": "tb942138e2e", "d": "20", "h": "16:35", "op": "DESEMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "ÔNIBUS 7 - CHEGADA FAMILIARES - IN LOCO", "p": ["Gustavo"]}, {"id": "t4780cb225f", "d": "21", "h": "10:00", "op": "LAVANDERIA", "loc": "HILTON", "g": "STAFF", "a": "ENTREGA LAVANDERIA 3", "p": ["Dourado"]}, {"id": "t909395d5c0", "d": "21", "h": "10:00", "op": "MARKETING", "loc": "HILTON", "g": "GALO DOIDO", "a": "MINIVAN - ACOMPANHAMENTO OPERAÇÃO MKT", "p": ["Gustavo"]}, {"id": "td7672e7661", "d": "21", "h": "15:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "ÔNIBUS 1 (Atletas + CT) - OPERAÇÃO JOGO - IN LOCO", "p": ["Dourado"]}, {"id": "t0e0a22b1d6", "d": "21", "h": "15:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "ÔNIBUS 2 (Backup) -OPERAÇÃO JOGO", "p": ["Dourado"]}, {"id": "te14fdf430d", "d": "21", "h": "15:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "ÔNIBUS 3 (Diretoria + Staff) - OPERAÇÃO JOGO", "p": ["Dourado"]}, {"id": "t50a2d23917", "d": "21", "h": "10:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "VAN CARGO (Rouparia) - OPERAÇÃO JOGO", "p": ["Dourado"]}, {"id": "ted4528794a", "d": "21", "h": "10:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "VAN PAX (Rouparia) - OPERAÇÃO JOGO", "p": ["Gustavo"]}, {"id": "tcf1c6d81b6", "d": "21", "h": "11:00", "op": "JOGO", "loc": "HILTON", "g": "DELEGAÇÃO", "a": "CARRO (Backup) - OPERAÇÃO JOGO", "p": ["Gustavo"]}, {"id": "tb2ce779ab0", "d": "21", "h": "12:00", "op": "JOGO", "loc": "HILTON", "g": "FAMÍLIA", "a": "ÔNIBUS 4 - OPERAÇÃO JOGO - IN LOCO", "p": ["Fonseca"]}, {"id": "ta4d318a685", "d": "21", "h": "13:00", "op": "JOGO", "loc": "PONTO DE ENCONTRO", "g": "FAMÍLIA", "a": "ÔNIBUS 5 - OPERAÇÃO JOGO", "p": ["Fonseca"]}, {"id": "t4d475c382f", "d": "21", "h": "13:00", "op": "JOGO", "loc": "PONTO DE ENCONTRO", "g": "FAMÍLIA", "a": "ÔNIBUS 6 - OPERAÇÃO JOGO - IN LOCO", "p": ["Gustavo"]}, {"id": "t5dc55aed33", "d": "21", "h": "13:00", "op": "JOGO", "loc": "PONTO DE ENCONTRO", "g": "FAMÍLIA", "a": "ÔNIBUS 7 - OPERAÇÃO JOGO", "p": ["Fonseca"]}, {"id": "t2cbdd83eda", "d": "22", "h": "10:30", "op": "EMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "EMBARQUE - VOO DELEGAÇÃO (SEGREGADO)", "p": ["Dourado"]}, {"id": "td675481041", "d": "22", "h": "10:30", "op": "EMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "MENSAGENS GRUPO OPERAÇÃO - PRÉ VOO DELEGAÇÃO", "p": ["Dourado"]}, {"id": "t21dcf1b6e6", "d": "22", "h": "07:00", "op": "EMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "DESPACHO DE BAGAGENS - VOO FAMÍLIA", "p": ["Fonseca"]}, {"id": "t1fa6fba7d5", "d": "22", "h": "08:30", "op": "EMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "EMBARQUE - VOO FAMÍLIA", "p": ["Fonseca"]}, {"id": "t1b93fe0bad", "d": "22", "h": "21:30", "op": "EMBARQUE", "loc": "BAQ", "g": "FAMÍLIA", "a": "MENSAGENS GRUPO OPERAÇÃO - PRÉ VOO FAMÍLIA", "p": ["Fonseca"]}, {"id": "tb742d69bc3", "d": "22", "h": "10:00", "op": "EMBARQUE", "loc": "BAQ", "g": "DELEGAÇÃO", "a": "DESPACHO DE BAGAGENS - VOO DELEGAÇÃO", "p": ["Gustavo"]}, {"id": "t6e333dfa70", "d": "22", "h": "20:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "DESEMBARQUE PAX (T3)", "p": ["Rodrigo"]}, {"id": "td3a3536939", "d": "22", "h": "20:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "RETIRADA DE BAGAGENS", "p": ["Gustavo"]}, {"id": "te0c2f19e3e", "d": "22", "h": "20:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "DELEGAÇÃO", "a": "MENSAGENS GRUPO OPERAÇÃO - PÓSVOO DELEGAÇÃO", "p": ["Dourado"]}, {"id": "t03d662bb9b", "d": "22", "h": "18:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "DESEMBARQUE PAX (T3)", "p": ["Ana"]}, {"id": "t85157b6fda", "d": "22", "h": "18:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "RETIRADA DE BAGAGENS", "p": ["Fonseca"]}, {"id": "t899eb42264", "d": "22", "h": "18:00", "op": "DESEMBARQUE", "loc": "CNF", "g": "FAMÍLIA", "a": "MENSAGENS GRUPO OPERAÇÃO - PÓS VOO FAMÍLIA", "p": ["Fonseca"]}], "macro": {"Dourado": {"18": ["PRÉ CHEGADA HOTEL (DELEGAÇÃO)", "OPERAÇÃO DELEGAÇÃO (HOTEL)", "LAVANDERIA", "CHEGADA CONVOCADOS"], "19": ["REUNIÃO SEGURANÇA", "REUNIÃO COORDENAÇÃO", "OPERAÇÃO DELEGAÇÃO (HOTEL)", "LAVANDERIA", "DELEGAÇÃO TREINO TARDE"], "20": ["INSPEÇÃO ESTÁDIO", "LAVANDERIA", "COLETIVA ESTÁDIO", "TREINO TARDE"], "21": ["JOGO - DELEGAÇÃO E ROUPARIA"], "22": ["EMBARQUE (DELEGAÇÃO)", "DESEMBARQUE DELEGAÇÃO (EDA)"], "pre": ["AVANÇADO HOTEL DELEGAÇÃO"]}, "Gustavo": {"18": ["EMBARQUE DELEGAÇÃO INTER CNF", "DESEMBARQUE DELEGAÇÃO BAQ"], "19": ["GALO DOIDO", "OPERAÇÃO VVIPS (HOTEL)", "CHEGADA FAMÍLIA GUIMARÃES", "DIRETORIA"], "20": ["OPERAÇÃO GALO DOIDO (HOTEL)", "OPERAÇÃO DIRETORIA (HOTEL)", "CHEGADA FAMÍLIA SALVADOR", "CHEGADA FAMÍLIA MENIN", "CARTÕES DE EMBARQUE RETORNO", "DESEMBARQUE FAMÍLIA BAQ"], "21": ["JOGO - VVIPS // FAMÍLIA", "ROUPARIA PÓS JOGO", "OPERAÇÃO PÓS JOGO"], "22": ["DESPACHO ROUPARIA", "DESEMBARQUE DELEGAÇÃO (T3)", "SAÍDA ROUPARIA (DELEGAÇÃO)"], "pre": ["PRÉ-VOO DELEGAÇÃO"]}, "Fonseca": {"18": ["EMBARQUE DELEGAÇÃO EDA CNF", "VIPS", "DESPACHO ROUPARIA"], "19": ["PRÉ-VOO FAMÍLIA (CT)"], "20": ["EMBARQUE FAMILIA INTER CNF", "DESEMBARQUE FAMÍALIA BAQ"], "21": ["JOGO - FAMÍLIA", "OPERAÇÃO PÓS JOGO"], "22": ["EMBARQUE FAMÍLIA", "DESEMBARQUE FAMÍLIA"], "pre": ["PRÉ-VOO DELEGAÇÃO"]}, "Rodrigo": {"17": ["RETIRADA CARTÕES DE EMBARQUE"], "18": ["EMBARQUE DELEGAÇÃO INTER CNF", "DESPACHO ROUPARIA CNF"], "19": ["PRÉ-VOO FAMÍLIA (CT)"], "20": ["EMBARQUE FAMILIA INTER CNF", "DESPACHO BAGAGENS FAMÍLIA CNF"], "22": ["BACKUP DELEGAÇÃO"], "pre": ["PRÉ-VOO FAMÍLIA"]}, "Ana": {"18": ["EMBARQUE DELEGAÇÃO EDA CNF", "DESPACHO ROUPARIA CNF"], "19": ["PRÉ-VOO FAMÍLIA (CT)"], "20": ["EMBARQUE FAMILIA INTER CNF", "DESPACHO BAGAGENS FAMÍLIA CNF"], "22": ["BACKUP FAMÍLIA"], "pre": ["PRÉ-VOO FAMÍLIA"]}}};
+const DAYS=[
+ {id:"14",dd:"14/11",ds:"SÁB",md:"MD-7",tit:"Avançada · chegada MKT"},
+ {id:"15",dd:"15/11",ds:"DOM",md:"MD-6",tit:"Avançada"},
+ {id:"16",dd:"16/11",ds:"SEG",md:"MD-5",tit:"Avançada"},
+ {id:"17",dd:"17/11",ds:"TER",md:"MD-4",tit:"Avançada · pré-embarque"},
+ {id:"18",dd:"18/11",ds:"QUA",md:"MD-3",tit:"Viagem"},
+ {id:"19",dd:"19/11",ds:"QUI",md:"MD-2",tit:"Treino"},
+ {id:"20",dd:"20/11",ds:"SEX",md:"MD-1",tit:"Treino + coletiva"},
+ {id:"21",dd:"21/11",ds:"SÁB",md:"MD",tit:"Jogo"},
+ {id:"22",dd:"22/11",ds:"DOM",md:"MD+1",tit:"Retorno"}];
+const PROG_BASE={
+ "18":[["14:00","Decolagem em CNF (LA 9515)","Confins",1],["17:30","Pouso em BAQ","Aeroporto",1],["19:20","Check-in","Hilton"],["19:30","Jantar","Hilton"],["22:00","Ceia","Hilton"]],
+ "19":[["08:00","Café da manhã","Hilton"],["10:00","Academia","Hilton"],["10:00","Reuniões CONMEBOL","Dann Carlton"],["11:30","Reunião / vídeo","Hilton"],["12:00","Almoço","Hilton"],["16:00","Lanche","Hilton"],["17:30","Treino","Sede Deportiva FCF",1],["20:30","Jantar","Hilton"]],
+ "20":[["08:00","Café da manhã","Hilton"],["10:00","Academia","Hilton"],["11:30","Reunião / vídeo","Hilton"],["12:00","Almoço","Hilton"],["16:00","Lanche","Hilton"],["16:00","Coletiva: treinador + atleta","Estádio Metropolitano"],["17:30","Treino","Sede Deportiva FCF",1],["20:30","Jantar","Hilton"]],
+ "21":[["08:00","Café da manhã","Hilton"],["10:00","Academia","Hilton"],["11:30","Reunião / vídeo","Hilton"],["12:00","Almoço","Hilton"],["14:30","Lanche","Hilton"],["15:00","Reunião","Hilton"],["17:30","JOGO · CAM x Boca Juniors","Estádio Metropolitano",1],["21:30","Jantar","Hotel"]],
+ "22":[["08:00","Brunch","Hilton"],["13:00","Decolagem em BAQ (LA 9517)","Aeroporto",1],["20:00","Pouso em CNF","Confins",1]]};
+const PEOPLE=["Dourado","Gustavo","Fonseca","Rodrigo","Ana"];
+const PLACE={"HILTON GARDEN INN":"Hilton","AEROPORTO BARRANQUILLA":"Aeroporto BAQ","AEROPUERTO BARRANQUILLA":"Aeroporto BAQ","FCF COLOMBIA":"Sede FCF","ESTÁDIO METROPOLITANO":"Estádio",
+ "DANN CARLTON":"Dann Carlton","CROWNE PLAZA":"Crowne Plaza","GHL COLLECTION":"GHL Collection","PONTO DE ENCONTRO":"Ponto de encontro",
+ "TBA":"A definir","DISPOSIÇÃO TOTAL":"Disposição total","DISPOSICIÓN TOTAL":"Disposição total","":"—"};
+const GRP={"ROUPARIA":"Rouparia","AVANÇADA":"Avançada","SEGURANÇA":"Segurança","LOGÍSTICA":"Logística","ANTIDOPING":"Antidoping","DIRETORIA":"Diretoria","DELEGAÇÃO":"Delegação","COMISSÃO TÉCNICA / + / ROUPARIA":"CT + rouparia","UTILEROS":"Rouparia","PLANTEL":"Plantel","DELEGACIÓN":"Delegação","AVANZADA":"Avançada","SEGURIDAD":"Segurança","LOGISTICA":"Logística",
+ "MKT":"Marketing","DOPING":"Antidoping","DIRECTIVOS":"Diretoria","DIRECTIVO":"Diretoria","DIRETORIA CAM":"Diretoria CAM","FAMILIARES":"Familiares","CUERPO TÉCNICO / + / UTILLEROS":"CT + rouparia"};
+const MACRO=DATA.macro;
+/* base (planilhas) + edições salvas no app */
+const _seen=new Set();
+const SBASE=DATA.svc.map((x,i)=>{let id="s_"+x.d+"_"+String(x.n).replace(/[^A-Za-z0-9]/g,"");if(_seen.has(id))id+="_"+i;_seen.add(id);return {...x,id}});
+const TBASE=DATA.tasks.map(x=>({...x}));
+const PBASE=[];Object.keys(PROG_BASE).forEach(d=>PROG_BASE[d].forEach((x,i)=>PBASE.push({id:"p_"+d+"_"+i,d,h:x[0],n:x[1],loc:x[2],key:!!x[3]})));
+let S=SBASE, T=TBASE, PROG={};
+const edits=new Map(); // id -> {kind,base,data,deleted,by,at}
+function merge(base,kind){
+  const out=[];
+  base.forEach(b=>{const e=edits.get(b.id);if(e&&e.kind===kind){if(!e.deleted)out.push({...e.data,id:b.id,_ed:e})}else out.push(b)});
+  edits.forEach((e,k)=>{if(e.kind===kind&&!e.base&&!e.deleted)out.push({...e.data,id:k,_ed:e,_new:1})});
+  return out}
+function applyEdits(){
+  S=merge(SBASE,"svc"); T=merge(TBASE,"task");
+  PROG={}; merge(PBASE,"prog").sort((a,b)=>a.h.localeCompare(b.h)).forEach(x=>(PROG[x.d]=PROG[x.d]||[]).push([x.h,x.n,x.loc,x.key?1:0,x.id,x._ed]));
+}
+applyEdits();
+
+/* ---------- helpers ---------- */
+const canEdit=()=>mode!=="loading"&&!readOnly;
+function edInfo(x){const e=x&&x._ed;if(!e)return "";const who=e.by&&names[e.by]?" por "+esc(names[e.by]):"";return `<span class="edby">${x._new?"Incluído":"Editado"}${e.at?" às "+hhmm(e.at):""}${who}</span>`}
+const ebtn=(kind,id)=>canEdit()?`<button class="ebtn" data-edit="${kind}" data-id="${id}" aria-label="Editar">✎ Editar</button>`:"";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pl=s=>PLACE[s]??s.toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase());
+const grp=s=>GRP[s]??s.toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase()).replace(/ \/ /g," ");
+const nice=s=>s.toLowerCase().replace(/(^|[\s(\/-])\S/g,m=>m.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E|Com|Para|Al|Del) /g,m=>m.toLowerCase()).replace(/\bSuv\b/,"SUV").replace(/\bCam\b/,"CAM").replace(/\bConmebol\b/,"CONMEBOL").replace(/\bBaq\b/,"BAQ").replace(/\bCnf\b/,"CNF").replace(/\bCt\b/g,"CT").replace(/\bVvips?\b/gi,m=>m.toUpperCase()).replace(/\bMkt\b/,"MKT").replace(/\bT3\b/i,"T3").replace(/\bFcf\b/,"FCF").replace(/\bEda\b/,"EDA");
+const veh=s=>nice(s.replace(/ \/ .*$/,"").replace(/^VAN $/,"VAN").replace(/MINIVAM/,"MINIVAN").replace(/^BUS/,"ÔNIBUS").replace(/CAMIÓN/,"CAMINHÃO"));
+function emo(v){v=v.toUpperCase();return /BUS|ÔNIBUS/.test(v)?"🚌":/CAMI|CARGA/.test(v)?"🚚":/SUV/.test(v)?"🚙":/SEDAN|CARRO/.test(v)?"🚗":"🚐"}
+const ES=[[/\bjuego\b/gi,"Jogo"],[/\bentrenamiento\b/gi,"Treino"],[/\bllegada\b/gi,"Chegada"],[/\boperaci[oó]n\b/gi,"Operação"],[/\bdirectivos?\b/gi,"Diretoria"],[/\bmascota\b/gi,"Mascote"],[/\brueda de prensa\b/gi,"Coletiva"],[/\butileria\b/gi,"Rouparia"],[/\bllevar empleados\b/gi,"Levar funcionários"],[/\bdisponibilidad\b/gi,"Disponível"],[/\bsalida\b/gi,"Saída"],[/\breuni[oó]n\b/gi,"Reunião"],[/\bseguridad\b/gi,"Segurança"],[/\bcoordinaci[oó]n\b/gi,"Coordenação"],[/\binvitados\b/gi,"Convidados"],[/\bdisposici[oó]n\b/gi,"Disposição"],[/\baeropuerto\b/gi,"Aeroporto"],[/\bfam(?=\s)/gi,"Família"],[/\bd[ií]a\b/gi,"dia"],[/\bplantel\b/gi,"Plantel"]];
+const pt=s=>ES.reduce((a,[r,v])=>a.replace(r,v),s);
+function actLabel(s){const parts=s.act.split("|").map(x=>x.trim()).filter(Boolean)
+  .filter(x=>!/^disponibilidad[e]? total!?$/i.test(x)&&!/^(VAN|BUS|MINIVAN|SEDAN|SUV)\b/i.test(x)&&!/^\+$/.test(x)&&!/^\(ANTIVANDALICO\)$/i.test(x));
+  return pt(nice(parts.join(" · ")||s.act))}
+const dayOf=id=>DAYS.find(d=>d.id===id);
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.k);toast.k=setTimeout(()=>t.hidden=true,2200)}
+const ls={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
+
+/* ---------- estado ---------- */
+const _td=new Date(),_tid=String(_td.getDate()).padStart(2,"0");
+const st={day:(_td.getMonth()===10&&DAYS.some(d=>d.id===_tid))?_tid:"18",tab:"transp",tv:"tl",who:"all",prog:true,person:ls.get("op-person")||"Dourado",allDays:false,openV:null};
+if(!PEOPLE.includes(st.person))st.person="Dourado";
+const checks=new Map(); // key -> {by,at}
+let mode="loading", dbRef=null, readOnly=false, userNS=null, names={};
+const ckey=(tid,p)=>tid+"__"+p;
+
+/* ---------- header ---------- */
+function renderHead(){
+  $("#days").innerHTML=DAYS.map(d=>`<button class="day" aria-pressed="${d.id===st.day}" data-d="${d.id}">${d.ds} ${d.dd}<small>${d.md}</small></button>`).join("");
+  $("#tabs").innerHTML=[["transp","Transporte"],["prog","Programação"],["func","Funções"],["pess","Por pessoa"],["macro","Macro"]]
+    .map(([k,l])=>`<button role="tab" aria-selected="${k===st.tab}" data-t="${k}">${l}</button>`).join("");
+  const s=$("#sync");
+  s.className="sync"+(mode==="db"?" on":"");
+  s.textContent=mode==="db"?(readOnly?"Só leitura":"Ao vivo"):mode==="local"?"Neste aparelho":"Conectando…";
+}
+function dayHead(extra){
+  const d=dayOf(st.day);
+  return `<div class="dayhead"><div><h2>${d.dd} · ${d.tit}</h2>${extra?`<p>${extra}</p>`:""}</div><span class="md">${d.md}</span></div>`;
+}
+
+/* ---------- TRANSPORTE ---------- */
+function svcDay(){return S.filter(s=>s.d===st.day&&(st.who==="all"||s.u===st.who))}
+function vTransp(){
+  const all=S.filter(s=>s.d===st.day), l=svcDay();
+  const legs=all.reduce((n,s)=>n+s.legs.length,0);
+  let h=dayHead(all.length?`${all.length} veículos · ${legs} trechos`:"");
+  if(!all.length) return h+`<div class="card"><div class="empty">Sem transporte em Barranquilla neste dia. As tarefas do dia estão em “Funções”.</div></div>`+(canEdit()?`<div class="addrow"><button class="btn o sm" data-new="svc">+ Novo veículo</button></div>`:"");
+  h+=`<div class="stats">
+    <div class="stat"><span class="lbl">Veículos</span><b>${all.length}</b></div>
+    <div class="stat"><span class="lbl">Delegação</span><b>${all.filter(s=>s.u==="D").length}</b></div>
+    <div class="stat"><span class="lbl">Família & conv.</span><b>${all.filter(s=>s.u==="F").length}</b></div>
+    <div class="stat"><span class="lbl">Ônibus</span><b>${all.filter(s=>/BUS/.test(s.v)).length}</b></div></div>
+  <div class="bar-row"><div class="seg" role="group" aria-label="Visualização">
+    <button aria-pressed="${st.tv==="tl"}" data-tv="tl">Timeline</button><button aria-pressed="${st.tv==="veh"}" data-tv="veh">Por veículo</button><button aria-pressed="${st.tv==="frota"}" data-tv="frota">Frota CAM</button></div>
+    <button class="btn wa sm" data-msg>💬 Mensagem da frota</button></div>
+  <div class="chips">${[["all","Todos"],["D","Delegação"],["F","Família & convidados"]].map(([k,t])=>`<button class="chip" aria-pressed="${st.who===k}" data-who="${k}">${t}</button>`).join("")}
+  ${st.tv==="tl"?`<button class="chip" aria-pressed="${st.prog}" data-prog>Programação</button>`:""}</div>`;
+  return h+(st.tv==="tl"?timeline(l):st.tv==="frota"?frota(l):vehicles(l));
+}
+function timeline(l){
+  const items=[];
+  l.forEach(s=>{let last=s.ini||"";s.legs.forEach((g,i)=>{if(g.h)last=g.h;items.push({k:(last||"99:99")+(g.h?"0":"1")+String(i).padStart(2,"0"),t:"v",s,g,i})})});
+  if(st.prog&&PROG[st.day])PROG[st.day].forEach(p=>items.push({k:p[0]+"/",t:"p",p}));
+  items.sort((a,b)=>a.k.localeCompare(b.k));
+  return `<div class="card tl">${items.map(it=>{
+    if(it.t==="p"){const p=it.p;return `<div class="tl-i prog ${p[3]?"key":""}"><span class="time">${p[0]}</span><span class="ic">▪</span><span class="t"><b>${esc(p[1])}</b> <span class="sub">· ${esc(p[2])}</span></span></div>`}
+    const {s,g,i}=it, r=g.r||s.r, gr=g.g||s.g;
+    return `<button class="tl-i veh" data-goveh="${s.id}"><span class="time ${g.h?"":"na"}">${g.h||"—"}</span><span class="ic">${emo(s.v)}</span>
+      <span class="t"><b>${esc(veh(s.v))}</b>${s.pax==="BACKUP"?' <span class="pill p-gold">backup</span>':""}${s._ed?' <span class="pill p-info">'+(s._new?"novo":"editado")+'</span>':""} <span class="sub">· ${esc(grp(gr))}</span>
+      <div class="route">${esc(pl(g.o))} → ${esc(pl(g.de))}</div>
+      <span class="sub">${i>0?"trecho "+(i+1)+" · ":""}${esc(nice(r||"sem responsável"))}${g.obs?" · "+esc(g.obs):""}</span></span></button>`}).join("")}</div>
+  <p class="note">Horários da planilha de transporte. “—” é trecho sem horário fixo (volta ou disposição).</p>`;
+}
+function vehicles(l){
+  const D=l.filter(s=>s.u==="D"),F=l.filter(s=>s.u==="F");
+  const card=s=>`<div class="card" id="veh-${s.id}"${st.openV===s.id?' style="border-color:var(--gold)"':""}>
+    <div class="vh"><span class="time ${s.ini?"":"na"}">${s.ini||"--:--"}</span>
+      <span class="t"><b>${emo(s.v)} ${esc(veh(s.v))}</b><br><span class="sub">${esc(actLabel(s))}</span></span>
+      <span class="pills"><span class="pill p-gold">nº ${esc(s.n)}</span>${s.ped==="CONMEBOL"?'<span class="pill p-info">CONMEBOL</span>':""}${s.conf==="CONFIRMADO"?'<span class="pill p-ok">Confirmado</span>':""}</span></div>
+    <div class="kv"><span>Grupo <b>${esc(grp(s.g)||"—")}</b></span><span>Resp. <b>${esc(nice(s.r||"—"))}</b></span>
+      <span>Cap. <b>${esc(s.cap||"—")}</b>${s.pax&&s.pax!=="-"?` · <b>${esc(s.pax==="BACKUP"?"backup":s.pax+" pax")}</b>`:""}</span>
+      <span>Disposição <b class="mono">${s.ini?s.ini+"–"+s.fim:"—"}</b></span></div>
+    <div class="legs">${s.legs.map(g=>`<div class="leg"><span class="time ${g.h?"":"na"}" style="font-size:13.5px">${g.h||"—"}</span><span class="dot"></span>
+      <span class="t">${esc(pl(g.o))} → ${esc(pl(g.de))}${g.g||g.r?`<br><span class="sub">${esc([g.g?grp(g.g):"",g.r?nice(g.r):""].filter(Boolean).join(" · "))}</span>`:""}${g.obs?`<br><span class="sub">${esc(g.obs)}</span>`:""}</span></div>`).join("")}</div>
+    ${s._ed||canEdit()?`<div class="vfoot">${edInfo(s)||"<span></span>"}${ebtn("svc",s.id)}</div>`:""}</div>`;
+  return (canEdit()?`<div class="addrow"><button class="btn o sm" data-new="svc">+ Novo veículo</button></div>`:"")+(D.length?`<div class="group">Delegação · ${D.length}</div>${D.map(card).join("")}`:"")+(F.length?`<div class="group">Família & convidados · ${F.length}</div>${F.map(card).join("")}`:"");
+}
+
+/* ---------- FROTA CAM (setor / veículo / responsável) ---------- */
+function setor(s){const v=s.v.toUpperCase(),g=s.g.toUpperCase();
+  if(/CAMI|CARGA/.test(v))return "Bagagens";
+  if(["MKT","ANTIDOPING","AVANÇADA","DOPING","AVANZADA","DIRECTIVO"].includes(g)||/SUV/.test(v)||(/SEDAN/.test(v)&&!/FAM/.test(g))||/^BACKUP/.test(s.act))return "Apoio";
+  return "Passageiros"}
+function frota(l){
+  const side=(list,name)=>{
+    const body=["Bagagens","Passageiros","Apoio"].map(se=>{const x=list.filter(s=>setor(s)===se);if(!x.length)return "";
+      return `<div class="fr-set"><span class="lbl">${se} · ${x.length}</span>${x.map(s=>`<button class="fr-row" data-goveh="${s.id}">
+        <span class="time ${s.ini?"":"na"}">${s.ini||"--:--"}</span><span class="t">${emo(s.v)} <b>${esc(veh(s.v))}</b>${s.pax==="BACKUP"?' <span class="pill p-gold">backup</span>':""}
+        ${["","PLANTEL","DELEGAÇÃO","DELEGACIÓN","FAMILIARES"].includes(s.g.toUpperCase())?"":`<span class="sub">· ${esc(grp(s.g))}</span>`}</span>
+        <span class="fr-r">${esc(nice(s.r&&s.r!=="-"?s.r:"—"))}</span></button>`).join("")}</div>`}).join("");
+    return `<div class="card fr"><div class="fr-h"><b>${name}</b><span class="sub">${list.length} veículo${list.length===1?"":"s"}</span></div>${body||`<div class="empty">Sem veículos.</div>`}</div>`};
+  return side(l.filter(s=>s.u==="D"),"Delegação")+side(l.filter(s=>s.u==="F"),"Família & convidados")+
+    `<p class="note">Mesmo formato da planilha Frota CAM: setor, veículo e responsável. Toque num veículo para ver os trechos.</p>`;
+}
+
+/* ---------- FUNÇÕES DO DIA ---------- */
+const tasksDay=d=>T.filter(t=>t.d===d).sort((a,b)=>a.h.localeCompare(b.h));
+function doneCount(list,person){let n=0,tot=0;list.forEach(t=>t.p.forEach(p=>{if(person&&p!==person)return;tot++;if(checks.has(ckey(t.id,p)))n++}));return [n,tot]}
+function vFunc(){
+  const l=tasksDay(st.day);
+  const [n,tot]=doneCount(l);
+  let h=dayHead(`${l.length} funções · ${n} de ${tot} marcadas`);
+  h+=`<div class="people">${PEOPLE.map(p=>{const [a,b]=doneCount(l,p);return `<button class="person" data-goperson="${p}"><b>${p}</b><span class="count">${b?a+"/"+b:"—"}</span><div class="prog-bar"><div style="width:${b?Math.round(a/b*100):0}%"></div></div></button>`}).join("")}</div>`;
+  if(canEdit())h+=`<div class="addrow"><button class="btn o sm" data-new="task">+ Nova função</button></div>`;
+  h+=`<div class="card">${l.length?l.map(t=>`<div class="task"><div class="top"><span class="time">${t.h}</span>
+     <span class="t"><b>${esc(nice(t.a))}</b><span class="sub">${esc(nice(t.op))} · ${esc(nice(t.loc))} · ${esc(nice(t.g))}</span>${t._ed?"<br>"+edInfo(t):""}</span>${ebtn("task",t.id)}</div>
+     <div class="who">${t.p.map(p=>pchip(t,p)).join("")}</div></div>`).join(""):`<div class="empty">Sem funções neste dia.</div>`}</div>
+   <p class="note">Toque no nome para marcar a função daquela pessoa como feita.</p>`;
+  return h;
+}
+function pchip(t,p){const c=checks.get(ckey(t.id,p));return `<button class="pck ${c?"on":""}" data-ck="${t.id}" data-p="${p}" aria-pressed="${!!c}" title="${c?"Feito"+(c.at?" às "+hhmm(c.at):""):"Marcar como feito"}"><span class="bx">${c?"✓":""}</span>${p}</button>`}
+function hhmm(iso){try{const d=new Date(iso);return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}catch(_){return ""}}
+
+/* ---------- POR PESSOA ---------- */
+function vPess(){
+  const p=st.person;
+  let h=`<div class="people">${PEOPLE.map(x=>{const [a,b]=doneCount(st.allDays?T:tasksDay(st.day),x);
+    return `<button class="person" aria-pressed="${x===p}" data-person="${x}"><b>${x}</b><span class="count">${b?a+"/"+b:"—"}</span><div class="prog-bar"><div style="width:${b?Math.round(a/b*100):0}%"></div></div></button>`}).join("")}</div>
+  <div class="bar-row"><div class="seg" role="group" aria-label="Período"><button aria-pressed="${!st.allDays}" data-all="0">Dia selecionado</button><button aria-pressed="${st.allDays}" data-all="1">Viagem toda</button></div></div>`;
+  const days=st.allDays?DAYS.map(d=>d.id):[st.day];
+  days.forEach(d=>{
+    const l=tasksDay(d).filter(t=>t.p.includes(p)), mac=(MACRO[p]||{})[d], D=dayOf(d);
+    if(st.allDays&&!l.length&&!mac)return;
+    const [a,b]=doneCount(l,p);
+    h+=`<div class="dayhead"><div><h2>${p} · ${D.dd}</h2><p>${D.tit}${b?` · ${a} de ${b} feitas`:""}</p></div><span class="md">${D.md}</span></div>`;
+    if(b)h+=`<div class="prog-bar"><div style="width:${Math.round(a/b*100)}%"></div></div>`;
+    if(mac)h+=`<div class="macro"><span class="lbl">Responsabilidades do dia</span><ul>${mac.map(x=>`<li>${esc(nice(x))}</li>`).join("")}</ul></div>`;
+    h+=`<div class="card">${l.length?l.map(t=>{const c=checks.get(ckey(t.id,p));const others=t.p.filter(x=>x!==p);
+      return `<button class="chk ${c?"on":""}" data-ck="${t.id}" data-p="${p}" aria-pressed="${!!c}"><span class="box">${c?"✓":""}</span>
+        <span class="t"><b>${esc(nice(t.a))}</b><span class="sub">${esc(nice(t.loc))}${others.length?" · com "+others.join(", "):""}</span>
+        ${c?`<br><span class="done-by">Feito${c.at?" às "+hhmm(c.at):""}${c.by&&names[c.by]?" por "+esc(names[c.by]):""}</span>`:""}</span>
+        <span class="time">${t.h}</span></button>`}).join(""):`<div class="empty">Sem funções no MICRO para ${p} neste dia.</div>`}</div>`;
+  });
+  if(st.allDays&&!T.some(t=>t.p.includes(p)))h+=`<div class="card"><div class="empty">Sem funções para ${p}.</div></div>`;
+  return h;
+}
+
+/* ---------- PROGRAMAÇÃO ---------- */
+function vProg(){
+  const p=PROG[st.day]||[];
+  let h=dayHead(p.length?`Programação prévia da delegação · ${p.length} atividades`:"");
+  const add=canEdit()?`<div class="addrow"><button class="btn o sm" data-new="prog">+ Nova atividade</button></div>`:"";
+  if(!p.length)return h+add+`<div class="card"><div class="empty">Sem programação da delegação neste dia. As funções da equipe estão em “Funções”.</div></div>`;
+  h+=add;
+  const dep=S.filter(s=>s.d===st.day&&s.u==="D");
+  h+=`<div class="card">${p.map((x,i)=>{
+    const nxt=p[i+1]?p[i+1][0]:"99:99";
+    const v=dep.filter(s=>s.ini&&s.ini>=x[0]&&s.ini<nxt&&s.pax!=="BACKUP"&&/BUS/.test(s.v));
+    return `<div class="prg ${x[3]?"key":""}" style="grid-template-columns:52px 1fr auto"><span class="time">${x[0]}</span><span><b>${esc(x[1])}</b> <span class="sub">· ${esc(x[2])}</span>
+      ${v.length?`<div class="veh">🚌 ${v.map(s=>esc(veh(s.v))+" "+s.ini+" → "+esc(pl(s.legs[0]?s.legs[0].de:""))).join(" · ")}</div>`:""}${x[5]?"<br>"+edInfo({_ed:x[5],_new:x[4].startsWith("n")}):""}</span>${ebtn("prog",x[4])}</div>`}).join("")}</div>
+  <p class="note">Fonte: Programação Prévia CAM (Sula 26 · CAM x BOC), com as edições feitas no app. Os ônibus da delegação aparecem embaixo da atividade em que saem.</p>`;
+  return h;
+}
+
+/* ---------- MACRO ---------- */
+const MDAYS=[{id:"pre",l:"Antes"},...DAYS.map(d=>({id:d.id,l:d.ds+" "+d.dd}))];
+function vMacro(){
+  const cell=(p,d)=>{const l=(MACRO[p]||{})[d];return l&&l.length?`<ul>${l.map(x=>`<li>${esc(nice(x.replace(/\/\//g,"/")))}</li>`).join("")}</ul>`:`<span class="sub">—</span>`};
+  let h=`<div class="dayhead"><div><h2>Macro da equipe</h2><p>Responsabilidades de cada pessoa por dia. O dia selecionado aparece em destaque.</p></div></div>
+  <div class="mx-wrap"><table class="mx"><thead><tr><th class="p">Pessoa</th>${MDAYS.map(d=>`<th class="${d.id===st.day?"sel":""}">${d.l}</th>`).join("")}</tr></thead>
+  <tbody>${PEOPLE.map(p=>`<tr><th class="p"><button class="pbtn" data-goperson="${p}">${p}</button></th>${MDAYS.map(d=>`<td class="${d.id===st.day?"sel":""}">${cell(p,d.id)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+  <div class="group">${dayOf(st.day).dd} · quem faz o quê</div>
+  <div class="mcards">${PEOPLE.map(p=>{const l=(MACRO[p]||{})[st.day];const [a,b]=doneCount(tasksDay(st.day),p);
+    return `<div class="macro"><div class="bar-row"><b>${p}</b><span class="sub">${b?a+" de "+b+" funções feitas":"sem funções no MICRO"}</span></div>
+    ${l&&l.length?`<ul>${l.map(x=>`<li>${esc(nice(x.replace(/\/\//g,"/")))}</li>`).join("")}</ul>`:`<span class="sub">Sem responsabilidade no macro.</span>`}</div>`}).join("")}</div>`;
+  return h;
+}
+
+/* ---------- mensagem WhatsApp ---------- */
+const msgo={fam:false,legs:false};
+function buildMsg(){
+  const d=dayOf(st.day);
+  const l=S.filter(s=>s.d===st.day&&(msgo.fam||s.u==="D")).sort((a,b)=>(a.ini||"99").localeCompare(b.ini||"99"));
+  let m=`FROTA CAM\n\n${d.dd} (${d.ds})\n`;
+  l.forEach(s=>{m+=`\n${s.ini||"--:--"} - ${emo(s.v)} ${veh(s.v)}${s.pax==="BACKUP"?" (backup)":""} | ${actLabel(s)}`;
+    if(msgo.legs)s.legs.forEach(g=>m+=`\n   ↳ ${g.h?g.h+" ":""}${pl(g.o)} → ${pl(g.de)}`);m+="\n"});
+  if(!l.length)m+="\nSem veículos programados.\n";
+  return m.trim();
+}
+function openMsg(){
+  const draw=()=>{const txt=buildMsg();
+    $("#sheet").innerHTML=`<div role="dialog" aria-label="Mensagem da frota"><div class="shead"><h3>Mensagem da frota · ${dayOf(st.day).dd}</h3><button class="btn o sm" data-close>Fechar</button></div>
+    <div class="opts"><label><input type="checkbox" id="o-fam" ${msgo.fam?"checked":""}> Família & convidados</label><label><input type="checkbox" id="o-legs" ${msgo.legs?"checked":""}> Trechos</label></div>
+    <textarea class="wa-prev" id="msgtxt" aria-label="Texto da mensagem">${esc(txt)}</textarea>
+    <div class="bar-row"><button class="btn" id="copy">Copiar texto</button><a class="btn wa" id="wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(txt)}">Abrir no WhatsApp</a></div></div>`;
+    $("#o-fam").onchange=e=>{msgo.fam=e.target.checked;draw()};$("#o-legs").onchange=e=>{msgo.legs=e.target.checked;draw()};
+    $("#msgtxt").oninput=e=>{$("#wa").href="https://wa.me/?text="+encodeURIComponent(e.target.value)};
+    $("#copy").onclick=()=>{const t=$("#msgtxt");const fb=()=>{t.focus();t.select();toast("Texto selecionado. Copie com Ctrl+C")};try{navigator.clipboard.writeText(t.value).then(()=>toast("Mensagem copiada"),fb)}catch(_){fb()}};
+  };draw();$("#sheet").hidden=false;
+}
+
+/* ---------- EDITAR ---------- */
+const PLACES=[...new Set(SBASE.flatMap(s=>s.legs.flatMap(g=>[g.o,g.de])).filter(Boolean))].sort();
+let form=null;
+const opt=(v,cur,l)=>`<option value="${esc(v)}"${v===cur?" selected":""}>${esc(l??v)}</option>`;
+const dayOpts=cur=>DAYS.map(d=>opt(d.id,cur,d.ds+" "+d.dd)).join("");
+function findItem(kind,id){return kind==="svc"?S.find(x=>x.id===id):kind==="task"?T.find(x=>x.id===id):(()=>{for(const d in PROG){const x=PROG[d].find(r=>r[4]===id);if(x)return {id,d,h:x[0],n:x[1],loc:x[2],key:!!x[3],_ed:x[5]}}})()}
+function isBase(kind,id){return (kind==="svc"?SBASE:kind==="task"?TBASE:PBASE).some(b=>b.id===id)}
+function openEdit(kind,id){
+  const x=id?findItem(kind,id):null;
+  if(id&&!x){toast("Item não encontrado");return}
+  form={kind,id,base:id?isBase(kind,id):false,del:false,
+    legs:kind==="svc"?(x?x.legs.map(g=>({...g})):[{h:"",o:"HILTON GARDEN INN",de:""}]):null,
+    x:x||(kind==="svc"?{d:st.day,n:"",v:"",act:"",u:"D",g:"",r:"",cap:"",pax:"",ini:"",fim:"",ped:"",conf:"-"}:kind==="task"?{d:st.day,h:"",a:"",loc:"",op:"",g:"",p:[]}:{d:st.day,h:"",n:"",loc:"",key:false})};
+  drawEdit();$("#sheet").hidden=false;
+}
+function legRows(){return form.legs.map((g,i)=>`<div class="legrow"><input type="time" aria-label="Hora do trecho ${i+1}" data-leg="${i}" data-f="h" value="${esc(g.h)}"><input list="places" aria-label="Origem do trecho ${i+1}" data-leg="${i}" data-f="o" value="${esc(g.o)}" placeholder="Origem"><input list="places" aria-label="Destino do trecho ${i+1}" data-leg="${i}" data-f="de" value="${esc(g.de)}" placeholder="Destino"><button type="button" data-delleg="${i}" aria-label="Remover trecho ${i+1}">×</button></div>`).join("")}
+function drawEdit(){
+  const {kind,x}=form, title={svc:"veículo",task:"função",prog:"atividade"}[kind];
+  let f="";
+  if(kind==="svc")f=`<div class="fgrid">
+    <label class="fld">Dia<select id="f-d">${dayOpts(x.d)}</select></label>
+    <label class="fld">Nº<input id="f-n" value="${esc(x.n)}"></label>
+    <label class="fld">Veículo<input id="f-v" value="${esc(x.v)}" required placeholder="Ex.: BUS 1, VAN 2"></label>
+    <label class="fld">Usuário<select id="f-u">${opt("D",x.u,"Delegação")}${opt("F",x.u,"Família & convidados")}</select></label>
+    <label class="fld full">Atividade<textarea id="f-act">${esc((x.act||"").split("|").map(t=>t.trim()).join("\n"))}</textarea></label>
+    <label class="fld">Grupo<input id="f-g" value="${esc(x.g)}"></label>
+    <label class="fld">Responsável<input id="f-r" value="${esc(x.r)}"></label>
+    <label class="fld">Capacidade<input id="f-cap" value="${esc(x.cap)}"></label>
+    <label class="fld">PAX<input id="f-pax" value="${esc(x.pax)}"></label>
+    <label class="fld">Início<input id="f-ini" type="time" value="${esc(x.ini)}"></label>
+    <label class="fld">Término<input id="f-fim" type="time" value="${esc(x.fim)}"></label>
+    <label class="fld">Pedido<select id="f-ped">${opt("",x.ped,"CAM")}${opt("CONMEBOL",x.ped)}</select></label>
+    <label class="fld">Confirmação<select id="f-conf">${opt("-",x.conf==="CONFIRMADO"?"":"-","A confirmar")}${opt("CONFIRMADO",x.conf,"Confirmado")}</select></label>
+    <div class="fld full">Trechos<div id="legs" style="display:flex;flex-direction:column;gap:6px">${legRows()}</div>
+      <button type="button" class="btn o sm" id="addleg" style="align-self:flex-start">+ Trecho</button></div>
+    <datalist id="places">${PLACES.map(p=>`<option value="${esc(p)}">`).join("")}</datalist></div>`;
+  if(kind==="task")f=`<div class="fgrid">
+    <label class="fld">Dia<select id="f-d">${dayOpts(x.d)}</select></label>
+    <label class="fld">Hora<input id="f-h" type="time" value="${esc(x.h)}" required></label>
+    <label class="fld full">Função<input id="f-a" value="${esc(x.a)}" required></label>
+    <label class="fld">Local<input id="f-loc" value="${esc(x.loc)}"></label>
+    <label class="fld">Operação<input id="f-op" value="${esc(x.op)}"></label>
+    <label class="fld full">Grupo<input id="f-g" value="${esc(x.g)}"></label>
+    <div class="fld full">Responsáveis<div class="pchecks">${[...new Set([...PEOPLE,...x.p])].map(p=>`<label><input type="checkbox" name="fp" value="${esc(p)}"${x.p.includes(p)?" checked":""}> ${esc(p)}</label>`).join("")}</div></div></div>`;
+  if(kind==="prog")f=`<div class="fgrid">
+    <label class="fld">Dia<select id="f-d">${dayOpts(x.d)}</select></label>
+    <label class="fld">Hora<input id="f-h" type="time" value="${esc(x.h)}" required></label>
+    <label class="fld full">Atividade<input id="f-n" value="${esc(x.n)}" required></label>
+    <label class="fld">Local<input id="f-loc" value="${esc(x.loc)}"></label>
+    <div class="fld">Destaque<div class="pchecks"><label><input type="checkbox" id="f-key"${x.key?" checked":""}> Marco do dia</label></div></div></div>`;
+  $("#sheet").innerHTML=`<div role="dialog" aria-label="Editar ${title}"><form id="ef" novalidate style="display:flex;flex-direction:column;gap:14px">
+    <div class="shead"><h3>${form.id?"Editar":"Novo"} ${title}</h3><button type="button" class="btn o sm" data-close>Cancelar</button></div>
+    ${form.id&&x._ed?`<p class="sub" style="margin:0">${edInfo(x)}</p>`:""}
+    ${f}
+    <p class="sub" id="ferr" style="margin:0;color:#B3261E" hidden></p>
+    <div class="factions"><div class="l">
+      ${form.id?`<button type="button" class="btn danger sm" id="fdel">${form.del?"Confirmar exclusão":"Excluir"}</button>`:""}
+      ${form.id&&form.base&&x._ed?`<button type="button" class="btn o sm" id="frest">Voltar ao original</button>`:""}</div>
+      <button type="submit" class="btn">Salvar</button></div></form></div>`;
+  wireEdit();
+}
+function readLegs(){document.querySelectorAll("#legs [data-leg]").forEach(i=>{form.legs[+i.dataset.leg][i.dataset.f]=i.value.trim()})}
+function wireEdit(){
+  const al=$("#addleg"); if(al)al.onclick=()=>{readLegs();keepFields();form.legs.push({h:"",o:"",de:""});drawEdit()};
+  document.querySelectorAll("[data-delleg]").forEach(b=>b.onclick=()=>{readLegs();keepFields();form.legs.splice(+b.dataset.delleg,1);drawEdit()});
+  const del=$("#fdel"); if(del)del.onclick=()=>{if(!form.del){keepFields();form.del=true;drawEdit();return}saveEdit(form.kind,form.id,null,true)};
+  const rs=$("#frest"); if(rs)rs.onclick=()=>restoreEdit(form.id);
+  $("#ef").addEventListener("submit",e=>{e.preventDefault();const d=collect();if(!d)return;saveEdit(form.kind,form.id,d,false)});
+}
+const val=id=>{const e=$(id);return e?e.value.trim():""};
+function keepFields(){const d=collect(true);if(d)form.x={...form.x,...d}}
+function collect(quiet){
+  const k=form.kind, err=m=>{if(quiet)return null;const e=$("#ferr");e.textContent=m;e.hidden=false;return null};
+  if(k==="svc"){readLegs();
+    const d={d:val("#f-d"),n:val("#f-n"),v:val("#f-v").toUpperCase(),act:val("#f-act").split("\n").map(t=>t.trim()).filter(Boolean).join(" | "),u:val("#f-u"),
+      g:val("#f-g").toUpperCase(),r:val("#f-r").toUpperCase(),cap:val("#f-cap"),pax:val("#f-pax").toUpperCase(),ini:val("#f-ini"),fim:val("#f-fim"),ped:val("#f-ped"),conf:val("#f-conf"),
+      obs:form.x.obs||"",legs:form.legs.filter(g=>g.h||g.o||g.de).map(g=>({...g,o:(g.o||"").toUpperCase(),de:(g.de||"").toUpperCase()}))};
+    if(!d.v&&!quiet)return err("Informe o veículo.");
+    if(!d.legs.length&&!quiet)return err("Inclua pelo menos um trecho.");
+    if(!d.legs.length)d.legs=form.legs;
+    return d}
+  if(k==="task"){
+    const d={d:val("#f-d"),h:val("#f-h"),a:val("#f-a").toUpperCase(),loc:val("#f-loc").toUpperCase(),op:val("#f-op").toUpperCase(),g:val("#f-g").toUpperCase(),
+      p:[...document.querySelectorAll('input[name="fp"]:checked')].map(i=>i.value)};
+    if(!quiet){if(!d.h)return err("Informe a hora.");if(!d.a)return err("Informe a função.");if(!d.p.length)return err("Marque pelo menos um responsável.")}
+    return d}
+  const d={d:val("#f-d"),h:val("#f-h"),n:val("#f-n"),loc:val("#f-loc"),key:!!($("#f-key")&&$("#f-key").checked)};
+  if(!quiet){if(!d.h)return err("Informe a hora.");if(!d.n)return err("Informe a atividade.")}
+  return d}
+const newId=()=>"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+async function saveEdit(kind,id,data,deleted){
+  if(!canEdit()){toast("Sem permissão para editar");return}
+  const isNew=!id; if(isNew)id=newId();
+  const base=isBase(kind,id);
+  if(deleted&&!base){return removeEdit(id,"Excluído")}
+  const doc={kind,base,data:deleted?null:data,deleted:!!deleted,at:new Date().toISOString(),by:myId||null};
+  const prev=edits.get(id); edits.set(id,doc); applyEdits();
+  $("#sheet").hidden=true; if(data&&data.d)st.day=data.d; render();
+  if(mode!=="db"){saveLocalEdits();toast(deleted?"Excluído":"Salvo");return}
+  try{await dbRef.collection("edits").doc(id).set(doc);toast(deleted?"Excluído":"Salvo")}
+  catch(e){if(prev)edits.set(id,prev);else edits.delete(id);applyEdits();render();
+    if(e&&e.code==="invalid_argument"){readOnly=true;toast("Sem permissão para editar")}else toast("Não foi possível salvar. Tente de novo.")}
+}
+async function removeEdit(id,msg){
+  const prev=edits.get(id); edits.delete(id); applyEdits(); $("#sheet").hidden=true; render();
+  if(mode!=="db"){saveLocalEdits();toast(msg);return}
+  try{await dbRef.collection("edits").doc(id).delete();toast(msg)}
+  catch(e){if(prev)edits.set(id,prev);applyEdits();render();toast("Não foi possível salvar. Tente de novo.")}
+}
+const restoreEdit=id=>removeEdit(id,"Voltou ao original da planilha");
+function saveLocalEdits(){ls.set("op-edits",JSON.stringify([...edits]))}
+function loadLocalEdits(){try{const a=JSON.parse(ls.get("op-edits")||"[]");edits.clear();a.forEach(([k,v])=>edits.set(k,v))}catch(_){}applyEdits()}
+
+/* ---------- render ---------- */
+function render(){
+  renderHead();
+  $("#view").innerHTML=(mode==="local"?`<div class="banner">As marcações e edições estão sendo salvas só neste aparelho. A equipe não vê o que você mudar aqui.</div>`:"")+
+    (readOnly?`<div class="banner">Você pode ver tudo, mas não marcar nem editar. Peça acesso de Editor ao Guilherme.</div>`:"")+
+    (st.tab==="transp"?vTransp():st.tab==="prog"?vProg():st.tab==="func"?vFunc():st.tab==="macro"?vMacro():vPess());
+  if(st.openV){const el=document.getElementById("veh-"+st.openV);if(el){el.scrollIntoView({block:"center"});st.openV=null}}
+}
+
+/* ---------- marcação ---------- */
+const busy=new Set();
+async function toggle(tid,p){
+  if(readOnly){toast("Sem permissão para marcar");return}
+  const k=ckey(tid,p); if(busy.has(k))return;
+  const was=checks.get(k);
+  if(was)checks.delete(k);else checks.set(k,{at:new Date().toISOString(),by:myId});
+  render();
+  if(mode!=="db"){saveLocal();return}
+  busy.add(k);
+  try{
+    const ref=dbRef.collection("checks").doc(k);
+    if(was)await ref.delete();else await ref.set({task:tid,person:p,at:new Date().toISOString(),by:myId||null});
+  }catch(e){
+    if(was)checks.set(k,was);else checks.delete(k);
+    if(e&&e.code==="invalid_argument"){readOnly=true;toast("Sem permissão para marcar")}
+    else if(e&&e.code==="quota_exceeded")toast("Armazenamento cheio. Avise o Guilherme.");
+    else toast("Não foi possível salvar. Tente de novo.");
+    render();
+  }finally{busy.delete(k)}
+}
+function saveLocal(){ls.set("op-checks",JSON.stringify([...checks]))}
+function loadLocal(){try{const a=JSON.parse(ls.get("op-checks")||"[]");checks.clear();a.forEach(([k,v])=>checks.set(k,v))}catch(_){}}
+
+let myId=null;
+async function resolveNames(){
+  if(!userNS)return;
+  const ids=[...new Set([...checks.values(),...edits.values()].map(c=>c.by).filter(Boolean))];
+  if(!ids.length)return;
+  const ps=await userNS.profiles(ids); let ch=false;
+  ids.forEach(id=>{const n=ps[id]&&ps[id].name||"";if(names[id]!==n){names[id]=n;ch=true}});
+  if(ch)render();
+}
+async function boot(){
+  render();
+  const fallback=()=>{if(mode==="loading"){mode="local";loadLocal();loadLocalEdits();render()}};
+  const timer=setTimeout(fallback,10000);
+  let db=null;
+  for(let i=0;i<50&&!(window.claude&&window.claude.use);i++)await new Promise(r=>setTimeout(r,200));
+  try{ if(window.claude&&window.claude.use){ [db,userNS]=await Promise.all([window.claude.use("db"),window.claude.use("user")]) } }catch(_){}
+  if(!db){clearTimeout(timer);fallback();return}
+  dbRef=db;
+  try{myId=userNS?await userNS.id():null;const w=userNS?await userNS.can("data.write"):null;if(w===false)readOnly=true}catch(_){}
+  db.collection("checks").onSnapshot(snap=>{
+    clearTimeout(timer); mode="db";
+    checks.clear();
+    snap.docs.forEach(d=>{const v=d.data();if(v)checks.set(d.id,{at:v.at,by:v.by})});
+    render(); resolveNames();
+  },err=>{clearTimeout(timer);if(mode!=="db"){mode="local";loadLocal();loadLocalEdits()}render()});
+  db.collection("edits").onSnapshot(snap=>{
+    edits.clear();
+    snap.docs.forEach(d=>{const v=d.data();if(v&&v.kind)edits.set(d.id,v)});
+    applyEdits(); if($("#sheet").hidden)render(); resolveNames();
+  },()=>{});
+}
+
+document.addEventListener("click",e=>{
+  const g=k=>e.target.closest(`[${k}]`);let el;
+  if(el=g("data-d")){st.day=el.dataset.d;render();window.scrollTo(0,0)}
+  else if(el=g("data-t")){st.tab=el.dataset.t;render();window.scrollTo(0,0)}
+  else if(el=g("data-tv")){st.tv=el.dataset.tv;render()}
+  else if(el=g("data-who")){st.who=el.dataset.who;render()}
+  else if(g("data-prog")){st.prog=!st.prog;render()}
+  else if(el=g("data-goveh")){st.tv="veh";st.who="all";st.openV=el.dataset.goveh;render()}
+  else if(el=g("data-ck")){toggle(el.dataset.ck,el.dataset.p)}
+  else if(el=g("data-person")){st.person=el.dataset.person;ls.set("op-person",st.person);render()}
+  else if(el=g("data-goperson")){st.person=el.dataset.goperson;ls.set("op-person",st.person);st.tab="pess";render();window.scrollTo(0,0)}
+  else if(el=g("data-all")){st.allDays=el.dataset.all==="1";render()}
+  else if(el=g("data-edit")){openEdit(el.dataset.edit,el.dataset.id)}
+  else if(el=g("data-new")){openEdit(el.dataset.new,null)}
+  else if(g("data-msg")){openMsg()}
+  else if(g("data-close")||e.target.id==="sheet"){$("#sheet").hidden=true;render()}
+});
+boot();
+</script>
+
+</body></html>
